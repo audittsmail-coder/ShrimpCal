@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#081717">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ชั่งกุ้ง">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>ชั่งน้ำหนักกุ้ง</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #081717;
+    --bg-2: #0c2020;
+    --panel: #0f2b2b;
+    --panel-2: #123434;
+    --line: #1c4444;
+    --led: #ff5a36;
+    --led-dim: #7a2a18;
+    --aqua: #2dd4bf;
+    --aqua-dim: #1a6b62;
+    --text: #eaf6f3;
+    --muted: #6f9d95;
+    --muted-2: #4f7a72;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #0f2c2c 0%, var(--bg) 60%);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    padding:20px 14px 30px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+
+  header{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:18px;
+    padding:0 2px;
+  }
+  header h1{
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:0.02em;
+    margin:0;
+  }
+  header h1 .fish{color:var(--aqua); font-weight:500;}
+  header .count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  /* Trip info: truck number + date */
+  .info-bar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .info-field{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:8px 12px;
+  }
+  .info-field label{
+    display:block;
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--muted-2);
+    font-weight:600;
+    margin-bottom:3px;
+  }
+  .info-field input{
+    width:100%;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:15px;
+    padding:0;
+  }
+  .info-field input::placeholder{color:var(--muted-2); font-weight:400;}
+  .info-field input[type="date"]{
+    font-family:'JetBrains Mono',monospace;
+    color-scheme:dark;
+  }
+
+  /* Session controls: start new truck / view history */
+  .session-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .session-row button{
+    flex:1;
+    border:none;
+    border-radius:12px;
+    padding:11px 10px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .session-row button:active{transform:scale(0.97);}
+  .btn-newtruck{background:linear-gradient(180deg,#34e0c4,var(--aqua)); color:#052321;}
+  .btn-history{background:var(--panel-2); border:1px solid var(--line) !important; color:var(--text);}
+
+  /* History modal */
+  .history-box{max-width:480px;}
+  .history-list{
+    max-height:50vh;
+    overflow-y:auto;
+    text-align:left;
+    margin-bottom:14px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .history-empty{
+    text-align:center;
+    color:var(--muted-2);
+    font-size:13.5px;
+    padding:24px 10px;
+  }
+  .history-item{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:11px 13px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .history-item .hi-info{line-height:1.5;}
+  .history-item .hi-truck{font-weight:700; font-size:14.5px; color:var(--text);}
+  .history-item .hi-meta{font-size:12px; color:var(--muted); font-family:'JetBrains Mono',monospace;}
+  .history-item .hi-actions{display:flex; gap:6px; flex-shrink:0;}
+  .history-item .hi-actions button{
+    border:none;
+    border-radius:9px;
+    padding:8px 11px;
+    font-size:12.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .hi-open{background:rgba(45,212,191,0.15); color:var(--aqua); border:1px solid var(--aqua-dim) !important;}
+  .hi-delete{background:rgba(255,90,54,0.12); color:#ff8a65; border:1px solid rgba(255,90,54,0.3) !important;}
+
+  /* Scale display */
+  .scale{
+    background:linear-gradient(180deg,#0d2626,#081616);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:18px 16px 16px;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+    position:relative;
+    overflow:hidden;
+  }
+  .scale::before{
+    content:"";
+    position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, transparent, var(--aqua-dim), transparent);
+  }
+  .scale-label{
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--muted-2);
+    font-weight:600;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .next-no{
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:normal;
+    text-transform:none;
+    font-size:12px;
+    color:var(--aqua);
+    background:rgba(45,212,191,0.1);
+    border:1px solid var(--aqua-dim);
+    border-radius:20px;
+    padding:3px 10px;
+    font-weight:700;
+  }
+  .tare-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#0a2222;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 12px;
+    margin-bottom:14px;
+  }
+  .tare-row label{
+    font-size:12.5px;
+    color:var(--muted);
+    flex:1;
+  }
+  .tare-row input{
+    width:70px;
+    background:#050f0f;
+    border:1px solid var(--line);
+    border-radius:7px;
+    color:var(--text);
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:14px;
+    text-align:right;
+    padding:6px 8px;
+    outline:none;
+    font-variant-numeric:tabular-nums;
+  }
+  .tare-row input:focus{border-color:var(--aqua);}
+  .tare-row .unit{font-size:12.5px; color:var(--muted-2);}
+  .readout{
+    display:flex;
+    align-items:baseline;
+    justify-content:center;
+    gap:8px;
+    background:#050f0f;
+    border-radius:12px;
+    border:1px solid #163636;
+    padding:12px 10px;
+    margin-bottom:14px;
+  }
+  .readout input{
+    -webkit-appearance:none;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:var(--led);
+    font-family:'JetBrains Mono',monospace;
+    font-weight:800;
+    font-size:36px;
+    letter-spacing:0.03em;
+    text-align:right;
+    width:100%;
+    text-shadow:0 0 14px rgba(255,90,54,0.5), 0 0 3px rgba(255,90,54,0.6);
+    font-variant-numeric:tabular-nums;
+  }
+  .readout input::placeholder{color:var(--led-dim); text-shadow:none;}
+  .readout .unit{
+    font-family:'JetBrains Mono',monospace;
+    font-size:16px;
+    font-weight:600;
+    color:var(--muted);
+    padding-bottom:4px;
+  }
+  .scale-actions{display:flex; gap:10px;}
+  .btn{
+    flex:1;
+    border:none;
+    border-radius:12px;
+    padding:15px 12px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    transition:transform .08s ease, filter .15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-add{
+    background:linear-gradient(180deg,#34e0c4,var(--aqua));
+    color:#052321;
+    box-shadow:0 8px 20px -8px rgba(45,212,191,0.55);
+  }
+  .btn-add:disabled{
+    background:#1a3d3a;
+    color:#4f7a72;
+    box-shadow:none;
+    cursor:not-allowed;
+  }
+  .btn-undo{
+    flex:none;
+    width:52px;
+    background:var(--panel-2);
+    color:var(--muted);
+    border:1px solid var(--line);
+    font-size:18px;
+  }
+
+  /* Basket grid */
+  .baskets-section{margin-top:22px;}
+  .row-block{margin-bottom:14px;}
+  .row-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:7px;
+    margin-bottom:8px;
+  }
+  @media (min-width:480px){
+    .row-grid{grid-template-columns:repeat(10,1fr);}
+  }
+  .basket{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:6px 4px 5px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .12s ease, transform .08s ease;
+  }
+  .basket:active{transform:scale(0.96);}
+  .basket:hover{border-color:var(--muted-2);}
+  .basket .no{
+    font-size:10px;
+    color:var(--muted-2);
+    font-family:'JetBrains Mono',monospace;
+    margin-bottom:3px;
+  }
+  .basket .kg{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:14px;
+    color:var(--text);
+    font-variant-numeric:tabular-nums;
+  }
+  .basket .kg-edit{
+    width:100%;
+    background:#050f0f;
+    border:1px solid var(--aqua);
+    border-radius:6px;
+    color:var(--aqua);
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:14px;
+    text-align:center;
+    padding:2px 0;
+    outline:none;
+    font-variant-numeric:tabular-nums;
+    margin-bottom:5px;
+  }
+  .basket .edit-actions{
+    display:flex;
+    gap:4px;
+  }
+  .basket .edit-actions button{
+    flex:1;
+    border:none;
+    border-radius:6px;
+    padding:5px 0;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .basket .edit-confirm{background:var(--aqua); color:#052321;}
+  .basket .edit-cancel{background:var(--panel-2); color:var(--muted); border:1px solid var(--line) !important;}
+  .basket.last{
+    border-color:var(--aqua-dim);
+    box-shadow:0 0 0 1px var(--aqua-dim) inset;
+  }
+  .row-subtotal{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--bg-2);
+    border-left:3px solid var(--aqua);
+    border-radius:8px;
+    padding:8px 14px;
+    font-family:'JetBrains Mono',monospace;
+    cursor:pointer;
+    user-select:none;
+  }
+  .row-subtotal:active{transform:scale(0.99);}
+  .row-subtotal .lbl-group{display:flex; align-items:center; gap:6px;}
+  .row-subtotal .chevron{
+    font-size:10px;
+    color:var(--muted-2);
+    transition:transform .15s ease;
+    display:inline-block;
+  }
+  .row-subtotal.collapsed .chevron{transform:rotate(-90deg);}
+  .row-subtotal .lbl{font-size:12px; color:var(--muted); letter-spacing:0.05em;}
+  .row-subtotal .row-totals{text-align:right; line-height:1.5;}
+  .row-subtotal .row-gross{display:block; font-size:11px; color:var(--muted-2);}
+  .row-subtotal .val{font-size:15px; font-weight:700; color:var(--aqua);}
+  .row-block{margin-bottom:8px;}
+  .row-block .row-grid{margin-bottom:6px;}
+
+  .empty{
+    text-align:center;
+    color:var(--muted-2);
+    font-size:14px;
+    padding:34px 10px;
+    border:1px dashed var(--line);
+    border-radius:14px;
+    margin-top:18px;
+  }
+
+  /* Totals summary (static, in normal page flow — not fixed) */
+  .footer{
+    margin-top:20px;
+  }
+  .footer-inner{
+    max-width:720px;
+    margin:0 auto;
+    background:linear-gradient(180deg,#0f2c2c,#0a1e1e);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:16px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    box-shadow:0 10px 30px -18px rgba(0,0,0,0.6);
+  }
+  .footer .totals-row{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .footer .lbl{
+    font-size:14px;
+    color:var(--muted);
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    font-weight:700;
+    margin-bottom:2px;
+  }
+  .footer .total{
+    font-family:'JetBrains Mono',monospace;
+    font-size:28px;
+    font-weight:800;
+    color:var(--led);
+    text-shadow:0 0 14px rgba(255,90,54,0.45);
+    font-variant-numeric:tabular-nums;
+  }
+  .footer .gross-line{
+    font-family:'JetBrains Mono',monospace;
+    font-size:15px;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:3px;
+  }
+  .footer .sub-label{
+    display:block;
+    font-size:12px;
+    color:var(--muted);
+    font-weight:600;
+    margin-top:2px;
+  }
+  .footer .clear-btn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--muted);
+    font-size:12px;
+    padding:8px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .backup-row{
+    display:flex;
+    gap:8px;
+    margin-top:2px;
+  }
+  .backup-row button{
+    flex:1;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--muted);
+    font-size:12.5px;
+    font-weight:600;
+    padding:9px 10px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .backup-row button:active{transform:scale(0.97);}
+  .footer .clear-btn:active{transform:scale(0.96);}
+
+  /* Custom confirm modal */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(4,10,10,0.7);
+    display:flex; align-items:center; justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .modal-overlay.hidden{display:none;}
+  .modal-box{
+    background:linear-gradient(180deg,#123434,#0c2020);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:22px 20px;
+    max-width:340px;
+    width:100%;
+    text-align:center;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,0.7);
+  }
+  .modal-box p{
+    margin:0 0 18px;
+    font-size:15px;
+    color:var(--text);
+    line-height:1.5;
+  }
+  .modal-actions{display:flex; gap:10px;}
+  .modal-actions button{
+    flex:1;
+    border:none;
+    border-radius:12px;
+    padding:12px 10px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+  }
+  .modal-confirm{background:#ff5a36; color:#2a0e06;}
+  .modal-cancel{background:var(--panel-2); color:var(--muted); border:1px solid var(--line) !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>ชั่งกุ้ง<span class="fish"> 🦐</span></h1>
+    <div style="text-align:right;">
+      <div class="count" id="basketCount">0 ตะกร้า</div>
+      <div id="storageNote" style="display:none; font-size:10px; color:#9a7a3f; margin-top:2px;">⚠ ข้อมูลจะหายเมื่อปิดหน้านี้</div>
+    </div>
+  </header>
+
+  <div class="info-bar">
+    <div class="info-field">
+      <label for="truckInput">รถคันที่</label>
+      <input id="truckInput" type="text" placeholder="เช่น 70-1234">
+    </div>
+    <div class="info-field">
+      <label for="dateInput">วันที่</label>
+      <input id="dateInput" type="date">
+    </div>
+  </div>
+
+  <div class="session-row">
+    <button type="button" id="newTruckBtn" class="btn-newtruck">🚛 บันทึก & เริ่มคันใหม่</button>
+    <button type="button" id="historyBtn" class="btn-history">📋 ประวัติ (<span id="historyCount">0</span>)</button>
+  </div>
+
+  <div class="scale">
+    <div class="scale-label">น้ำหนักตะกร้าถัดไป</div>
+    <div class="tare-row">
+      <label for="tareInput">น้ำหนักตะกร้าเปล่า (หักออกทุกตะกร้า)</label>
+      <input id="tareInput" class="cents-input" type="text" inputmode="numeric" pattern="[0-9]*" value="0.00">
+      <span class="unit">กก.</span>
+    </div>
+    <div class="tare-row">
+      <label for="percentInput">เปอร์เซ็นต์หัก (จากยอดหลังหักตะกร้า)</label>
+      <input id="percentInput" class="cents-input" type="text" inputmode="numeric" pattern="[0-9]*" value="0.00">
+      <span class="unit">%</span>
+    </div>
+    <div class="tare-row">
+      <label for="sampleInput">น้ำหนักกุ้งตัวอย่าง (บวกเข้าสุทธิตรงๆ)</label>
+      <input id="sampleInput" class="cents-input" type="text" inputmode="numeric" pattern="[0-9]*" value="0.00">
+      <span class="unit">กก.</span>
+    </div>
+    <div style="display:flex; justify-content:center; margin-bottom:8px;">
+      <span class="next-no" id="nextBasketNo">ตะกร้าที่ #1</span>
+    </div>
+    <div class="readout">
+      <input id="weightInput" class="cents-input" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0.00">
+      <div class="unit">กก.</div>
+    </div>
+    <div class="scale-actions">
+      <button class="btn btn-undo" id="undoBtn" title="ลบตะกร้าล่าสุด">↺</button>
+      <button class="btn btn-add" id="addBtn" disabled>+ เพิ่มตะกร้า</button>
+    </div>
+  </div>
+
+  <div class="baskets-section" id="basketsSection"></div>
+</div>
+
+<div class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="lbl">น้ำหนักรวมทั้งหมด • <span id="totalBasketCount">0</span> ตะกร้า</div>
+      <div class="gross-line">ก่อนหักตะกร้า <span id="grandGross">0.00</span> กก.</div>
+      <div class="gross-line">หลังหักตะกร้า <span id="grandNet">0.00</span> กก.</div>
+      <div class="gross-line">หักเปอร์เซ็นต์ (<span id="percentLabel2">0</span>%) −<span id="percentDeductKg">0.00</span> กก.</div>
+      <div class="gross-line">+ กุ้งตัวอย่าง <span id="sampleWeightLabel">0.00</span> กก.</div>
+    </div>
+    <div class="totals-row">
+      <div class="total"><span id="grandTotal">0.00</span> กก.<span class="sub-label">สุทธิ</span></div>
+      <button class="clear-btn" id="clearBtn">ล้างข้อมูล</button>
+    </div>
+    <div class="truck-summary" id="truckSummarySection" style="display:none;">
+      <div class="lbl" style="margin-bottom:8px;">น้ำหนักสุทธิแต่ละคัน</div>
+      <div id="truckSummaryList" style="display:flex; flex-direction:column; gap:6px; margin-bottom:10px;"></div>
+      <div style="display:flex; align-items:baseline; justify-content:space-between; padding-top:10px; border-top:1px solid var(--line);">
+        <span class="lbl" style="margin-bottom:0;">รวมทุกคัน</span>
+        <span class="total" style="font-size:22px;"><span id="truckSummaryGrand">0.00</span> กก.</span>
+      </div>
+    </div>
+    <div class="backup-row">
+      <button type="button" id="exportBtn">⬇ บันทึกไฟล์สำรอง</button>
+      <button type="button" id="importBtn">⬆ โหลดไฟล์สำรอง</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none;">
+    </div>
+    <div id="backupStatus" style="display:none; font-size:12px; text-align:center; padding:4px;"></div>
+  </div>
+  <div style="text-align:right; font-size:11px; color:var(--muted-2); margin-top:12px;">Crafted by · Singha Jewvutthipong</div>
+</div>
+
+<div class="modal-overlay hidden" id="clearModal">
+  <div class="modal-box">
+    <p>ล้างข้อมูลทั้งหมดใช่หรือไม่?<br><span style="color:var(--muted); font-size:13px;">รวมตะกร้า, น้ำหนักตะกร้าเปล่า, เปอร์เซ็นต์, กุ้งตัวอย่าง, รถคันที่ — ไม่สามารถกู้คืนได้</span></p>
+    <div class="modal-actions">
+      <button class="modal-cancel" id="modalCancel">ยกเลิก</button>
+      <button class="modal-confirm" id="modalConfirm">ล้างข้อมูล</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="historyModal">
+  <div class="modal-box history-box">
+    <p style="margin-bottom:12px; font-weight:700; font-size:17px;">ประวัติรถที่ชั่งแล้ว</p>
+    <div class="history-list" id="historyList"></div>
+    <div class="modal-actions">
+      <button class="modal-confirm" id="historyClearBtn" style="flex:1; display:none;">ล้างประวัติทั้งหมด</button>
+      <button class="modal-cancel" id="historyCloseBtn" style="flex:1;">ปิด</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'shrimp-weigh:data';
+let baskets = []; // [{no, weight}] — weight is gross (as weighed, including basket)
+let tareWeight = 0; // empty basket weight, subtracted from every basket
+let percentDeduct = 0; // % deducted from the grand total, applied after tare
+let sampleWeight = 0; // extra sample shrimp weight, added directly to the net final total
+let truckNo = '';
+let recordDate = '';
+let editingIdx = null;
+let collapsedRows = new Set(); // row indices (0-based) currently collapsed
+let prevBasketCount = 0;
+let records = []; // saved past truck sessions: {id, truckNo, recordDate, baskets, tare, percent, sample, basketCount, grossTotal, netTotal, finalTotal, savedAt}
+
+const input = document.getElementById('weightInput');
+const tareInput = document.getElementById('tareInput');
+const percentInput = document.getElementById('percentInput');
+const sampleInput = document.getElementById('sampleInput');
+const truckInput = document.getElementById('truckInput');
+const dateInput = document.getElementById('dateInput');
+const addBtn = document.getElementById('addBtn');
+const undoBtn = document.getElementById('undoBtn');
+const clearBtn = document.getElementById('clearBtn');
+const basketsSection = document.getElementById('basketsSection');
+const basketCount = document.getElementById('basketCount');
+const grandTotalEl = document.getElementById('grandTotal');
+const grandGrossEl = document.getElementById('grandGross');
+
+function fmt(n){
+  return n.toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function netWeight(gross){
+  return Math.max(0, gross - (tareWeight || 0));
+}
+
+function computeTotals(basketList, tare, percent, sample){
+  let grossTotal = 0, netTotal = 0;
+  basketList.forEach(b => {
+    grossTotal += b.weight;
+    netTotal += Math.max(0, b.weight - (tare || 0));
+  });
+  const pct = percent || 0;
+  const percentDeductKg = netTotal * (pct / 100);
+  const finalTotal = netTotal - percentDeductKg + (sample || 0);
+  return { grossTotal, netTotal, finalTotal };
+}
+
+// Auto-decimal "cents entry": user types digits only (e.g. 6 2 3) and the
+// value auto-formats with 2 decimal places from the right (→ 6.23), like a
+// calculator/POS keypad — no manual decimal point needed for speed.
+function formatCentsValue(raw){
+  const digits = raw.replace(/\D/g, '').slice(0, 6); // cap at 9999.99
+  const num = digits === '' ? 0 : parseInt(digits, 10);
+  return (num / 100).toFixed(2);
+}
+
+function render(){
+  basketCount.textContent = baskets.length + ' ตะกร้า';
+  document.getElementById('historyCount').textContent = records.length;
+  document.getElementById('totalBasketCount').textContent = baskets.length;
+  document.getElementById('nextBasketNo').textContent = 'ตะกร้าที่ #' + (baskets.length + 1);
+
+  let grossTotal = 0, netTotal = 0;
+  baskets.forEach(b => { grossTotal += b.weight; netTotal += netWeight(b.weight); });
+  const pct = percentDeduct || 0;
+  const percentDeductKg = netTotal * (pct / 100);
+  const finalTotal = netTotal - percentDeductKg + (sampleWeight || 0);
+  grandGrossEl.textContent = fmt(grossTotal);
+  document.getElementById('grandNet').textContent = fmt(netTotal);
+  document.getElementById('percentLabel2').textContent = pct.toString();
+  document.getElementById('percentDeductKg').textContent = fmt(percentDeductKg);
+  document.getElementById('sampleWeightLabel').textContent = fmt(sampleWeight || 0);
+  grandTotalEl.textContent = fmt(finalTotal);
+
+  renderTruckSummary();
+
+  basketsSection.innerHTML = '';
+
+  if(baskets.length === 0){
+    basketsSection.innerHTML = '<div class="empty">ยังไม่มีตะกร้าที่ชั่ง — เริ่มกรอกน้ำหนักด้านบนได้เลย<br><span style="font-size:12px;">แตะที่ตะกร้าใดก็ได้ภายหลังเพื่อแก้ไขน้ำหนัก</span></div>';
+    return;
+  }
+
+  const rowsCount = Math.ceil(baskets.length / 10);
+
+  // whenever the basket count changes (add/remove/edit doesn't count), auto-collapse
+  // every row except the current (last) one, to keep long lists scannable
+  if(baskets.length !== prevBasketCount){
+    collapsedRows = new Set();
+    for(let i=0;i<rowsCount-1;i++) collapsedRows.add(i);
+    prevBasketCount = baskets.length;
+  }
+
+  for(let r = 0; r < rowsCount; r++){
+    const rowBaskets = baskets.slice(r*10, r*10+10);
+    const rowBlock = document.createElement('div');
+    rowBlock.className = 'row-block';
+    const isCollapsed = collapsedRows.has(r);
+
+    // subtotal acts as a clickable header — shown first, toggles the row's grid
+    const rowGross = rowBaskets.reduce((s,b)=>s+b.weight,0);
+    const subtotal = document.createElement('div');
+    subtotal.className = 'row-subtotal' + (isCollapsed ? ' collapsed' : '');
+    const rangeLabel = `แถวที่ ${r+1} (#${r*10+1}–#${r*10+rowBaskets.length})`;
+    subtotal.innerHTML = `<span class="lbl-group"><span class="chevron">▾</span><span class="lbl">${rangeLabel}</span></span><span class="val">${fmt(rowGross)} กก.</span>`;
+    subtotal.addEventListener('click', () => {
+      if(collapsedRows.has(r)) collapsedRows.delete(r); else collapsedRows.add(r);
+      render();
+    });
+    rowBlock.appendChild(subtotal);
+
+    if(!isCollapsed){
+      const grid = document.createElement('div');
+      grid.className = 'row-grid';
+      rowBaskets.forEach((b, i) => {
+        const idx = r*10 + i;
+        const el = document.createElement('div');
+        el.className = 'basket' + (idx === baskets.length - 1 ? ' last' : '');
+        if(editingIdx === idx){
+          el.innerHTML = `
+            <div class="no">#${b.no}</div>
+            <input class="kg-edit cents-input" data-idx="${idx}" type="text" inputmode="numeric" pattern="[0-9]*" value="${Number(b.weight).toFixed(2)}">
+            <div class="edit-actions">
+              <button type="button" class="edit-confirm" data-idx="${idx}">✓</button>
+              <button type="button" class="edit-cancel" data-idx="${idx}">✕</button>
+            </div>`;
+          grid.appendChild(el);
+        }else{
+          el.innerHTML = `<div class="no">#${b.no}</div><div class="kg" data-idx="${idx}">${fmt(b.weight)}</div>`;
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            editingIdx = idx;
+            render();
+            const inp = basketsSection.querySelector(`.kg-edit[data-idx="${idx}"]`);
+            if(inp){ inp.focus(); inp.select(); }
+          });
+          grid.appendChild(el);
+        }
+      });
+      rowBlock.appendChild(grid);
+    }
+
+    basketsSection.appendChild(rowBlock);
+  }
+}
+
+// Per-truck net-weight breakdown: current in-progress session (if it has any
+// baskets) plus every archived session in history, summed into one grand total.
+function renderTruckSummary(){
+  const section = document.getElementById('truckSummarySection');
+  const listEl = document.getElementById('truckSummaryList');
+  const items = [];
+
+  if(baskets.length > 0){
+    const t = computeTotals(baskets, tareWeight, percentDeduct, sampleWeight);
+    items.push({ truckNo, finalTotal: t.finalTotal, current: true });
+  }
+  records.forEach(rec => {
+    items.push({ truckNo: rec.truckNo, finalTotal: rec.finalTotal, current: false });
+  });
+
+  if(items.length === 0){
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+
+  listEl.innerHTML = items.map(it => {
+    const label = it.truckNo && it.truckNo.trim() ? it.truckNo : '(ไม่ระบุรถ)';
+    const tag = it.current ? '<span style="color:var(--aqua); font-size:11px; margin-left:6px;">● คันปัจจุบัน</span>' : '';
+    return `<div style="display:flex; align-items:center; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:13.5px;">
+      <span style="color:var(--text);">${label}${tag}</span>
+      <span style="color:var(--aqua); font-weight:700;">${fmt(it.finalTotal)} กก.</span>
+    </div>`;
+  }).join('');
+
+  const grand = items.reduce((sum, it) => sum + it.finalTotal, 0);
+  document.getElementById('truckSummaryGrand').textContent = fmt(grand);
+}
+
+let storageOk = true;
+
+function save(){
+  if(!storageOk) return; // storage unavailable in this environment, keep working in-memory
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ baskets, tare: tareWeight, percent: percentDeduct, sample: sampleWeight, truckNo, recordDate, records }));
+  }catch(e){
+    storageOk = false; // auto-save unavailable here; app continues to work in-memory silently
+    const note = document.getElementById('storageNote');
+    if(note) note.style.display = 'block';
+  }
+}
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(Array.isArray(parsed)){
+        baskets = parsed; // legacy format (no tare/truck/date)
+      }else{
+        baskets = parsed.baskets || [];
+        tareWeight = parsed.tare || 0;
+        percentDeduct = parsed.percent || 0;
+        sampleWeight = parsed.sample || 0;
+        truckNo = parsed.truckNo || '';
+        recordDate = parsed.recordDate || '';
+        records = Array.isArray(parsed.records) ? parsed.records : [];
+      }
+    }
+  }catch(e){
+    // no existing data yet, or storage unavailable — start fresh in-memory
+  }
+  tareInput.value = Number(tareWeight).toFixed(2);
+  percentInput.value = Number(percentDeduct).toFixed(2);
+  sampleInput.value = Number(sampleWeight).toFixed(2);
+  truckInput.value = truckNo;
+  // default to today if no date has been saved yet
+  if(!recordDate){
+    const now = new Date();
+    recordDate = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+  }
+  dateInput.value = recordDate;
+  render();
+}
+
+function addBasket(){
+  const v = parseFloat(input.value);
+  if(isNaN(v) || v <= 0) return;
+  baskets.push({ no: baskets.length + 1, weight: v });
+  input.value = '';
+  addBtn.disabled = true;
+  render();
+  save();
+  input.focus();
+}
+
+function undoLast(){
+  if(baskets.length === 0) return;
+  baskets.pop();
+  render();
+  save();
+}
+
+function todayISO(){
+  const now = new Date();
+  return now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+}
+
+function clearAll(){
+  document.getElementById('clearModal').classList.remove('hidden');
+}
+
+document.getElementById('modalCancel').addEventListener('click', () => {
+  document.getElementById('clearModal').classList.add('hidden');
+});
+document.getElementById('modalConfirm').addEventListener('click', () => {
+  baskets = [];
+  tareWeight = 0;
+  percentDeduct = 0;
+  sampleWeight = 0;
+  truckNo = '';
+  editingIdx = null;
+
+  tareInput.value = '0.00';
+  percentInput.value = '0.00';
+  sampleInput.value = '0.00';
+  truckInput.value = '';
+
+  recordDate = todayISO();
+  dateInput.value = recordDate;
+
+  render();
+  save();
+  document.getElementById('clearModal').classList.add('hidden');
+});
+
+// ---- Truck sessions: "start new truck" archives the current session into
+// history, then resets the active fields for the next truck. ----
+
+function resetActiveSession(){
+  baskets = [];
+  tareWeight = 0;
+  percentDeduct = 0;
+  sampleWeight = 0;
+  truckNo = '';
+  editingIdx = null;
+  collapsedRows = new Set();
+  prevBasketCount = 0;
+
+  tareInput.value = '0.00';
+  percentInput.value = '0.00';
+  sampleInput.value = '0.00';
+  truckInput.value = '';
+
+  recordDate = todayISO();
+  dateInput.value = recordDate;
+}
+
+function archiveCurrentSession(){
+  if(baskets.length === 0) return; // nothing to archive
+  const totals = computeTotals(baskets, tareWeight, percentDeduct, sampleWeight);
+  records.unshift({
+    id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    truckNo, recordDate,
+    baskets, tare: tareWeight, percent: percentDeduct, sample: sampleWeight,
+    basketCount: baskets.length,
+    grossTotal: totals.grossTotal, netTotal: totals.netTotal, finalTotal: totals.finalTotal,
+    savedAt: new Date().toISOString()
+  });
+}
+
+document.getElementById('newTruckBtn').addEventListener('click', () => {
+  archiveCurrentSession();
+  resetActiveSession();
+  render();
+  save();
+});
+
+function renderHistoryList(){
+  const listEl = document.getElementById('historyList');
+  const clearBtn = document.getElementById('historyClearBtn');
+  clearBtn.style.display = records.length === 0 ? 'none' : '';
+  clearBtn.dataset.confirming = '0';
+  clearBtn.textContent = 'ล้างประวัติทั้งหมด';
+
+  listEl.innerHTML = '';
+  if(records.length === 0){
+    listEl.innerHTML = '<div class="history-empty">ยังไม่มีประวัติรถที่บันทึกไว้</div>';
+    return;
+  }
+  records.forEach(rec => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const truckLabel = rec.truckNo && rec.truckNo.trim() ? rec.truckNo : '(ไม่ระบุรถ)';
+    item.innerHTML = `
+      <div class="hi-info">
+        <div class="hi-truck">${truckLabel}</div>
+        <div class="hi-meta">${rec.recordDate || '-'} • ${rec.basketCount} ตะกร้า • ${fmt(rec.finalTotal)} กก.</div>
+      </div>
+      <div class="hi-actions">
+        <button type="button" class="hi-open" data-id="${rec.id}">เปิดดู</button>
+        <button type="button" class="hi-delete" data-id="${rec.id}">ลบ</button>
+      </div>`;
+    listEl.appendChild(item);
+  });
+}
+
+function loadRecord(id){
+  const idx = records.findIndex(r => r.id === id);
+  if(idx === -1) return;
+  const rec = records[idx];
+
+  // put the current active session back into history first (so it isn't lost),
+  // then remove the chosen record from history and make it active
+  archiveCurrentSession();
+  records.splice(records.findIndex(r => r.id === id), 1);
+
+  baskets = rec.baskets || [];
+  tareWeight = rec.tare || 0;
+  percentDeduct = rec.percent || 0;
+  sampleWeight = rec.sample || 0;
+  truckNo = rec.truckNo || '';
+  recordDate = rec.recordDate || todayISO();
+  editingIdx = null;
+  collapsedRows = new Set();
+  prevBasketCount = 0;
+
+  tareInput.value = Number(tareWeight).toFixed(2);
+  percentInput.value = Number(percentDeduct).toFixed(2);
+  sampleInput.value = Number(sampleWeight).toFixed(2);
+  truckInput.value = truckNo;
+  dateInput.value = recordDate;
+
+  render();
+  save();
+  document.getElementById('historyModal').classList.add('hidden');
+}
+
+document.getElementById('historyBtn').addEventListener('click', () => {
+  renderHistoryList();
+  document.getElementById('historyModal').classList.remove('hidden');
+});
+document.getElementById('historyCloseBtn').addEventListener('click', () => {
+  document.getElementById('historyModal').classList.add('hidden');
+});
+document.getElementById('historyClearBtn').addEventListener('click', (e) => {
+  const btn = e.currentTarget;
+  if(btn.dataset.confirming === '1'){
+    records = [];
+    renderHistoryList();
+    render();
+    save();
+  }else{
+    btn.dataset.confirming = '1';
+    btn.textContent = 'ยืนยันล้างทั้งหมด?';
+    setTimeout(() => {
+      if(btn.dataset.confirming === '1'){
+        btn.dataset.confirming = '0';
+        btn.textContent = 'ล้างประวัติทั้งหมด';
+      }
+    }, 3000);
+  }
+});
+document.getElementById('historyList').addEventListener('click', (e) => {
+  const openBtn = e.target.closest('.hi-open');
+  const delBtn = e.target.closest('.hi-delete');
+  if(openBtn){
+    loadRecord(openBtn.dataset.id);
+  }else if(delBtn){
+    if(delBtn.dataset.confirming === '1'){
+      records = records.filter(r => r.id !== delBtn.dataset.id);
+      renderHistoryList();
+      render();
+      save();
+    }else{
+      delBtn.dataset.confirming = '1';
+      const original = delBtn.textContent;
+      delBtn.textContent = 'ยืนยันลบ?';
+      setTimeout(() => { delBtn.dataset.confirming = '0'; delBtn.textContent = original; }, 3000);
+    }
+  }
+});
+
+function commitEdit(idx, rawValue){
+  const v = parseFloat(rawValue);
+  if(!isNaN(v) && v > 0){
+    baskets[idx].weight = v;
+    save();
+  }
+  editingIdx = null;
+  render();
+}
+
+basketsSection.addEventListener('input', (e) => {
+  if(!e.target.classList.contains('kg-edit')) return;
+  e.target.value = formatCentsValue(e.target.value);
+});
+
+basketsSection.addEventListener('click', (e) => {
+  const confirmBtn = e.target.closest('.edit-confirm');
+  const cancelBtn = e.target.closest('.edit-cancel');
+  if(confirmBtn){
+    const idx = parseInt(confirmBtn.dataset.idx, 10);
+    const inp = basketsSection.querySelector(`.kg-edit[data-idx="${idx}"]`);
+    commitEdit(idx, inp ? inp.value : '');
+  }else if(cancelBtn){
+    editingIdx = null;
+    render();
+  }
+});
+
+basketsSection.addEventListener('keydown', (e) => {
+  if(!e.target.classList.contains('kg-edit')) return;
+  const idx = parseInt(e.target.dataset.idx, 10);
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    commitEdit(idx, e.target.value);
+  }else if(e.key === 'Escape'){
+    e.preventDefault();
+    editingIdx = null;
+    render();
+  }
+});
+// Note: no auto-commit on blur/focusout — committing is done via the
+// explicit ✓/✕ buttons or Enter/Escape keys, to avoid mobile keyboards
+// firing blur before a button tap is registered.
+
+truckInput.addEventListener('input', () => {
+  truckNo = truckInput.value;
+  save();
+});
+dateInput.addEventListener('input', () => {
+  recordDate = dateInput.value;
+  save();
+});
+
+percentInput.addEventListener('input', () => {
+  percentInput.value = formatCentsValue(percentInput.value);
+  const v = parseFloat(percentInput.value);
+  percentDeduct = (!isNaN(v) && v >= 0) ? Math.min(v, 100) : 0;
+  render();
+  save();
+});
+
+sampleInput.addEventListener('input', () => {
+  sampleInput.value = formatCentsValue(sampleInput.value);
+  const v = parseFloat(sampleInput.value);
+  sampleWeight = (!isNaN(v) && v >= 0) ? v : 0;
+  render();
+  save();
+});
+
+tareInput.addEventListener('input', () => {
+  tareInput.value = formatCentsValue(tareInput.value);
+  const v = parseFloat(tareInput.value);
+  tareWeight = (!isNaN(v) && v >= 0) ? v : 0;
+  render();
+  save();
+});
+
+input.addEventListener('input', () => {
+  input.value = formatCentsValue(input.value);
+  const v = parseFloat(input.value);
+  addBtn.disabled = !(!isNaN(v) && v > 0);
+});
+input.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){ e.preventDefault(); addBasket(); }
+});
+addBtn.addEventListener('click', addBasket);
+undoBtn.addEventListener('click', undoLast);
+clearBtn.addEventListener('click', clearAll);
+
+function showBackupStatus(msg, isError){
+  const el = document.getElementById('backupStatus');
+  el.textContent = msg;
+  el.style.color = isError ? '#ff8a65' : 'var(--aqua)';
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3500);
+}
+
+function exportBackup(){
+  const data = { baskets, tare: tareWeight, percent: percentDeduct, sample: sampleWeight, truckNo, recordDate, records, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateForName = (recordDate || 'data').replace(/-/g,'');
+  const truckForName = (truckNo || '').trim().replace(/[^a-zA-Z0-9-]/g,'') || 'shrimp';
+  a.href = url;
+  a.download = `shrimp-weigh_${truckForName}_${dateForName}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showBackupStatus('✓ บันทึกไฟล์สำรองแล้ว', false);
+}
+
+function importBackup(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const parsed = JSON.parse(reader.result);
+      baskets = parsed.baskets || [];
+      tareWeight = parsed.tare || 0;
+      percentDeduct = parsed.percent || 0;
+      sampleWeight = parsed.sample || 0;
+      truckNo = parsed.truckNo || '';
+      recordDate = parsed.recordDate || '';
+      records = Array.isArray(parsed.records) ? parsed.records : records;
+      tareInput.value = Number(tareWeight).toFixed(2);
+      percentInput.value = Number(percentDeduct).toFixed(2);
+      sampleInput.value = Number(sampleWeight).toFixed(2);
+      truckInput.value = truckNo;
+      dateInput.value = recordDate;
+      editingIdx = null;
+      render();
+      save();
+      showBackupStatus('✓ โหลดข้อมูลจากไฟล์สำรองแล้ว', false);
+    }catch(e){
+      showBackupStatus('⚠ ไฟล์นี้ใช้ไม่ได้ — กรุณาเลือกไฟล์สำรองที่บันทึกจากแอปนี้', true);
+    }
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('exportBtn').addEventListener('click', exportBackup);
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(file) importBackup(file);
+  e.target.value = ''; // allow re-selecting the same file later
+});
+
+load();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

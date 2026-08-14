@@ -29,7 +29,8 @@ jobs:
         run: |
           BUILD_VERSION="${GITHUB_SHA::7}-$(date -u +%Y%m%d%H%M%S)"
           echo "Build version: $BUILD_VERSION"
-          sed -i "s/__BUILD_VERSION__/${BUILD_VERSION}/g" service-worker.js
+          find . -name service-worker.js -not -path './.git/*' -print0 \
+            | xargs -0 sed -i "s/__BUILD_VERSION__/${BUILD_VERSION}/g"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

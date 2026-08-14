@@ -1,7 +1,7 @@
 {
-  "name": "ShimCal · เครื่องมือชั่งกุ้ง",
-  "short_name": "ShimCal",
-  "description": "รวมเครื่องมือคำนวณและชั่งน้ำหนักกุ้งไว้ในที่เดียว",
+  "name": "คำนวณชั่งกุ้ง",
+  "short_name": "ชั่งกุ้ง",
+  "description": "แอปคำนวณน้ำหนักและราคากุ้งปกติ กุ้งฝอย กุ้งนิ่ม",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

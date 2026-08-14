@@ -1,12 +1,10 @@
-const CACHE_NAME = 'shimcal-shell-__BUILD_VERSION__';
+const CACHE_NAME = 'shrimp-calculator-__BUILD_VERSION__';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png',
-  './calc/index.html',
-  './scale/index.html'
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
