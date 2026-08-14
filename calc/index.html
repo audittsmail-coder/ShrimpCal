@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>คำนวณชั่งกุ้ง</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d2b2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ชั่งกุ้ง">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root{
+    --bg: #0d2b2e;
+    --panel: #123539;
+    --panel-2: #163f43;
+    --line: #2c565b;
+    --ink: #eef2ea;
+    --ink-dim: #9fb8b6;
+    --shrimp: #e6733a;
+    --shrimp-dim: #c65f2c;
+    --teal-accent: #3fb6a8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(63,182,168,0.08), transparent 45%),
+      radial-gradient(circle at 90% 90%, rgba(230,115,58,0.07), transparent 40%);
+    font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+    color: var(--ink);
+    min-height:100vh;
+    padding: 20px 14px 60px;
+  }
+  .wrap{ max-width: 480px; margin: 0 auto; }
+
+  header{ margin-bottom: 18px; }
+  .eyebrow{
+    font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: var(--teal-accent);
+    text-transform: uppercase;
+  }
+  h1{
+    font-size: 25px;
+    margin: 4px 0 2px;
+    font-weight: 700;
+  }
+  .sub{ font-size: 15px; color: var(--ink-dim); }
+
+  .panel{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .panel-title{
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .field{ margin-bottom: 12px; }
+  .field:last-child{ margin-bottom: 0; }
+  label{
+    display:block;
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 5px;
+  }
+  .unit{ color: var(--ink-dim); font-size: 13.5px; }
+  input[type=number]{
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 11px 12px;
+    color: var(--ink);
+    font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 18px;
+    outline: none;
+    transition: border-color .15s ease;
+    -moz-appearance: textfield;
+  }
+  input[type=number]:focus{ border-color: var(--teal-accent); }
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{
+    -webkit-appearance: none; margin:0;
+  }
+
+  .row2{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Receipt / ticket */
+  .ticket{
+    background: repeating-linear-gradient(
+      var(--panel-2), var(--panel-2)
+    );
+    border-radius: 4px;
+    position: relative;
+    padding: 20px 18px 22px;
+    font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    border-top: 1px dashed var(--line);
+  }
+  .ticket::before, .ticket::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; height:10px;
+    background:
+      radial-gradient(circle at 8px 0, transparent 6px, var(--bg) 6.5px) top left / 16px 10px repeat-x;
+  }
+  .ticket::before{ top:-1px; transform: scaleY(-1); }
+  .ticket::after{ bottom:-1px; }
+
+  .ticket-head{
+    text-align:center;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--teal-accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .tline{
+    display:flex;
+    justify-content: space-between;
+    font-size: 15px;
+    color: var(--ink-dim);
+    padding: 5px 0;
+  }
+  .tline span:last-child{ color: var(--ink); }
+  .tdiv{
+    border-top: 1px dashed var(--line);
+    margin: 10px 0;
+  }
+  .ttotal{
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 4px;
+  }
+  .ttotal .label{ font-size: 15px; color: var(--ink-dim); }
+  .ttotal .value{
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--shrimp);
+  }
+  .price-total{
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 12px;
+  }
+  .price-total .label{ font-size: 15px; color: var(--ink-dim); }
+  .price-total .value{
+    font-size: 23px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .price-total .value b{ color: var(--teal-accent); }
+
+  .rest-row{
+    display:grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 10px;
+  }
+  .rest-row .field{ margin-bottom: 0; }
+  .rest-row-label{
+    font-size: 12.5px;
+    color: var(--teal-accent);
+    font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    margin-bottom: 8px;
+  }
+  .rm-row{
+    width: 38px;
+    height: 41px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--ink-dim);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .rm-row:active{ background: var(--panel-2); }
+  .rm-row:disabled{ opacity: 0.35; cursor: default; }
+
+  .add-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 4px;
+    background: transparent;
+    border: 1px dashed var(--line);
+    color: var(--teal-accent);
+    padding: 10px;
+    border-radius: 8px;
+    font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .add-row:active{ background: var(--panel-2); }
+
+  .mode-toggle{
+    display:flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .mode-btn{
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+    padding: 9px 8px;
+    border-radius: 8px;
+    font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .mode-btn.active{
+    background: var(--teal-accent);
+    border-color: var(--teal-accent);
+    color: var(--bg);
+  }
+  .mode-btn:active{ opacity: 0.85; }
+
+  .rest-subtotal{
+    display:flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--ink-dim);
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+  .rest-subtotal span:last-child{ color: var(--teal-accent); }
+
+  .reset{
+    display:block;
+    width:100%;
+    margin-top: 16px;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+    padding: 10px;
+    border-radius: 8px;
+    font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .reset:active{ background: var(--panel-2); }
+
+  .credit{
+    text-align: right;
+    margin-top: 16px;
+    font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal-accent);
+    opacity: 0.65;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Shrimp Scale · แพกุ้ง</div>
+    <h1>คำนวณชั่งกุ้ง</h1>
+    <div class="sub">กุ้งปกติ — กรอกน้ำหนักตะกร้าและเศษ ระบบคำนวณให้ทันที</div>
+  </header>
+
+  <div class="panel">
+    <div class="panel-title">น้ำหนักตะกร้า</div>
+    <div class="row2">
+      <div class="field">
+        <label>น้ำหนักที่ชั่งต่อตะกร้า <span class="unit">(กก.)</span></label>
+        <input type="number" id="w_basket" inputmode="decimal" step="0.01" placeholder="0.00">
+      </div>
+      <div class="field">
+        <label>น้ำหนักตะกร้า <span class="unit">(กก.)</span></label>
+        <input type="number" id="w_tare" inputmode="decimal" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="field">
+      <label>จำนวนตะกร้าที่ชั่ง <span class="unit">(ใบ)</span></label>
+      <input type="number" id="n_basket" inputmode="numeric" step="1" placeholder="0">
+    </div>
+    <div class="field">
+      <label>หักเปอร์เซ็นต์ <span class="unit">(% — หักจากน้ำหนักสุทธิกุ้งปกติ)</span></label>
+      <input type="number" id="deductPercent" inputmode="decimal" step="0.1" placeholder="0.0">
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">ตัวอย่างกุ้งสุ่ม <span style="text-transform:none; font-weight:400;">(ใส่ได้หลายรายการ)</span></div>
+    <div id="sampleRows"></div>
+    <button type="button" class="add-row" id="addSample">+ เพิ่มตัวอย่าง</button>
+    <div class="rest-subtotal"><span>รวมน้ำหนักตัวอย่าง</span><span id="sampleSubtotal">0.00 กก.</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">เศษที่ชั่ง <span style="text-transform:none; font-weight:400;">(ใส่ได้หลายรายการ)</span></div>
+    <div id="restRows"></div>
+    <button type="button" class="add-row" id="addRow">+ เพิ่มเศษ</button>
+    <div class="rest-subtotal"><span>น้ำหนักก่อนหักตะกร้า</span><span id="restGross">0.00 กก.</span></div>
+    <div class="rest-subtotal"><span>รวมเศษสุทธิ</span><span id="restSubtotal">0.00 กก.</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">กุ้งฝอย <span style="text-transform:none; font-weight:400;">(ใส่ได้หลายรายการ)</span></div>
+    <div class="mode-toggle" id="foyModeToggle">
+      <button type="button" class="mode-btn active" data-mode="weigh">ชั่งน้ำหนัก</button>
+      <button type="button" class="mode-btn" data-mode="percent">หัก % จากน้ำหนักรวม</button>
+    </div>
+    <div id="foyWeighMode">
+      <div id="shrimpFoyRows"></div>
+      <button type="button" class="add-row" id="addShrimpFoy">+ เพิ่มกุ้งฝอย</button>
+    </div>
+    <div id="foyPercentMode" style="display:none;">
+      <div class="field">
+        <label>หักเปอร์เซ็นต์กุ้งฝอย <span class="unit">(% จากน้ำหนักรวมหลังหักตะกร้า)</span></label>
+        <input type="number" id="foyPercent" inputmode="decimal" step="0.1" placeholder="0.0">
+      </div>
+    </div>
+    <div class="rest-subtotal" id="foyGrossRow"><span>น้ำหนักก่อนหักตะกร้า</span><span id="shrimpFoyGross">0.00 กก.</span></div>
+    <div class="rest-subtotal" id="foyBaseRow" style="display:none;"><span>ฐานคำนวณ (น้ำหนักรวมหลังหักตะกร้า)</span><span id="shrimpFoyBase">0.00 กก.</span></div>
+    <div class="rest-subtotal"><span>รวมน้ำหนักกุ้งฝอยสุทธิ</span><span id="shrimpFoySubtotal">0.00 กก.</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">กุ้งนิ่ม <span style="text-transform:none; font-weight:400;">(ใส่ได้หลายรายการ)</span></div>
+    <div id="shrimpNimRows"></div>
+    <button type="button" class="add-row" id="addShrimpNim">+ เพิ่มกุ้งนิ่ม</button>
+    <div class="rest-subtotal"><span>น้ำหนักก่อนหักตะกร้า</span><span id="shrimpNimGross">0.00 กก.</span></div>
+    <div class="rest-subtotal"><span>รวมน้ำหนักกุ้งนิ่มสุทธิ</span><span id="shrimpNimSubtotal">0.00 กก.</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">ราคา</div>
+    <div class="field">
+      <label>ราคากุ้งปกติ <span class="unit">(บาท/กก.)</span></label>
+      <input type="number" id="price" inputmode="decimal" step="0.01" placeholder="0.00">
+    </div>
+    <div class="field">
+      <label>ราคากุ้งฝอย <span class="unit">(บาท/กก.)</span></label>
+      <input type="number" id="priceFoy" inputmode="decimal" step="0.01" placeholder="0.00">
+    </div>
+    <div class="field">
+      <label>ราคากุ้งนิ่ม <span class="unit">(บาท/กก.)</span></label>
+      <input type="number" id="priceNim" inputmode="decimal" step="0.01" placeholder="0.00">
+    </div>
+  </div>
+
+  <div class="ticket">
+    <div class="ticket-head">ใบสรุปน้ำหนัก</div>
+
+    <div class="tline"><span>น้ำหนักตะกร้าสุทธิ</span><span id="out_basket_net">0.00 กก.</span></div>
+    <div class="tline"><span>เศษสุทธิ</span><span id="out_rest">0.00 กก.</span></div>
+    <div class="tline"><span>น้ำหนักตัวอย่างกุ้งสุ่ม</span><span id="out_sample">0.00 กก.</span></div>
+    <div class="tline"><span>น้ำหนักดิบก่อนหัก</span><span id="out_gross">0.00 กก.</span></div>
+    <div class="tline" id="out_foy_split_row" style="display:none;"><span>หักน้ำหนักกุ้งฝอย (%)</span><span id="out_foy_split">0.00 กก.</span></div>
+    <div class="tline"><span>หักเปอร์เซ็นต์</span><span id="out_deduct">0% (0.00 กก.)</span></div>
+    <div class="tdiv"></div>
+    <div class="ttotal">
+      <span class="label">น้ำหนักสุทธิกุ้งปกติ</span>
+      <span class="value" id="out_net">0.00<span style="font-size:16px; color:var(--ink-dim)"> กก.</span></span>
+    </div>
+    <div class="tline"><span>ราคาต่อกก. (กุ้งปกติ)</span><span id="out_price_rate">0.00 บาท/กก.</span></div>
+    <div class="price-total">
+      <span class="label">ราคารวมกุ้งปกติ</span>
+      <span class="value"><b id="out_price">0.00</b> บาท</span>
+    </div>
+
+    <div class="tdiv"></div>
+    <div class="tline"><span>น้ำหนักสุทธิกุ้งฝอย</span><span id="out_foy_net">0.00 กก.</span></div>
+    <div class="tline"><span>ราคาต่อกก. (กุ้งฝอย)</span><span id="out_foy_rate">0.00 บาท/กก.</span></div>
+    <div class="tline"><span>ราคารวมกุ้งฝอย</span><span id="out_foy_price">0.00 บาท</span></div>
+
+    <div class="tdiv"></div>
+    <div class="tline"><span>น้ำหนักสุทธิกุ้งนิ่ม</span><span id="out_nim_net">0.00 กก.</span></div>
+    <div class="tline"><span>ราคาต่อกก. (กุ้งนิ่ม)</span><span id="out_nim_rate">0.00 บาท/กก.</span></div>
+    <div class="tline"><span>ราคารวมกุ้งนิ่ม</span><span id="out_nim_price">0.00 บาท</span></div>
+
+    <div class="tdiv"></div>
+    <div class="ttotal">
+      <span class="label">น้ำหนักกุ้งทั้งหมด</span>
+      <span class="value" id="out_total_weight">0.00<span style="font-size:16px; color:var(--ink-dim)"> กก.</span></span>
+    </div>
+    <div class="tdiv"></div>
+    <div class="ttotal">
+      <span class="label">รวมราคาทั้งหมด</span>
+      <span class="value" id="out_grand_total">0.00<span style="font-size:16px; color:var(--ink-dim)"> บาท</span></span>
+    </div>
+  </div>
+
+  <button class="reset" id="resetBtn">ล้างค่าทั้งหมด</button>
+  <div class="credit">Crafted by · Singha Jewvutthipong</div>
+</div>
+
+<script>
+  const baseIds = ['w_basket','w_tare','n_basket','deductPercent','price','priceFoy','priceNim','foyPercent'];
+  const inputs = Object.fromEntries(baseIds.map(id => [id, document.getElementById(id)]));
+
+  let foyMode = 'weigh';
+  const foyModeToggle = document.getElementById('foyModeToggle');
+  const foyWeighMode = document.getElementById('foyWeighMode');
+  const foyPercentMode = document.getElementById('foyPercentMode');
+  const foyGrossRow = document.getElementById('foyGrossRow');
+  const foyBaseRow = document.getElementById('foyBaseRow');
+
+  function setFoyMode(mode){
+    foyMode = mode;
+    foyModeToggle.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    foyWeighMode.style.display = mode === 'weigh' ? '' : 'none';
+    foyPercentMode.style.display = mode === 'percent' ? '' : 'none';
+    foyGrossRow.style.display = mode === 'weigh' ? '' : 'none';
+    foyBaseRow.style.display = mode === 'percent' ? '' : 'none';
+  }
+
+  foyModeToggle.addEventListener('click', (e) => {
+    const btn = e.target.closest('.mode-btn');
+    if (!btn) return;
+    setFoyMode(btn.dataset.mode);
+    calculate();
+  });
+
+  function num(el){
+    const v = parseFloat(el.value);
+    return isNaN(v) ? 0 : v;
+  }
+
+  function fmt(n){
+    return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // Factory for a dynamic "add rows of weight, subtract tare" group
+  function createRowGroup(containerId, addBtnId, rowLabel){
+    const containerEl = document.getElementById(containerId);
+    let count = 0;
+
+    function addRow(){
+      count++;
+      const row = document.createElement('div');
+      row.className = 'rest-row';
+      row.innerHTML = `
+        <div class="field">
+          ${count === 1 ? `<div class="rest-row-label">${rowLabel} (กก.)</div>` : ''}
+          <input type="number" class="rest-w" inputmode="decimal" step="0.01" placeholder="0.00">
+        </div>
+        <button type="button" class="rm-row" aria-label="ลบรายการ">×</button>
+      `;
+      containerEl.appendChild(row);
+      row.querySelector('.rest-w').addEventListener('input', calculate);
+      row.querySelector('.rm-row').addEventListener('click', () => {
+        row.remove();
+        updateRemoveButtons();
+        calculate();
+      });
+      updateRemoveButtons();
+    }
+
+    function updateRemoveButtons(){
+      const rows = containerEl.querySelectorAll('.rest-row');
+      rows.forEach(r => { r.querySelector('.rm-row').disabled = rows.length === 1; });
+    }
+
+    function sumNet(wTare){
+      let total = 0;
+      containerEl.querySelectorAll('.rest-row').forEach(row => {
+        const w = parseFloat(row.querySelector('.rest-w').value);
+        if (!isNaN(w)) total += (w - wTare);
+      });
+      return total;
+    }
+
+    function sumRaw(){
+      let total = 0;
+      containerEl.querySelectorAll('.rest-row').forEach(row => {
+        const w = parseFloat(row.querySelector('.rest-w').value);
+        if (!isNaN(w)) total += w;
+      });
+      return total;
+    }
+
+    function reset(){
+      containerEl.innerHTML = '';
+      count = 0;
+      addRow();
+    }
+
+    document.getElementById(addBtnId).addEventListener('click', () => {
+      addRow();
+      calculate();
+    });
+
+    addRow();
+    return { sumNet, sumRaw, reset };
+  }
+
+  const sampleGroup = createRowGroup('sampleRows', 'addSample', 'ตัวอย่างกุ้งสุ่ม');
+  const restGroup = createRowGroup('restRows', 'addRow', 'เศษที่ชั่ง');
+  const foyGroup = createRowGroup('shrimpFoyRows', 'addShrimpFoy', 'น้ำหนักกุ้งฝอย');
+  const nimGroup = createRowGroup('shrimpNimRows', 'addShrimpNim', 'น้ำหนักกุ้งนิ่ม');
+
+  function calculate(){
+    const wBasket = num(inputs.w_basket);
+    const wTare   = num(inputs.w_tare);
+    const nBasket = num(inputs.n_basket);
+    const deductPercent = num(inputs.deductPercent);
+    const price   = num(inputs.price);
+    const priceFoy= num(inputs.priceFoy);
+    const priceNim= num(inputs.priceNim);
+    const foyPercent = num(inputs.foyPercent);
+
+    const restNet = restGroup.sumNet(wTare);
+    const sampleNet = sampleGroup.sumRaw();
+    const nimNet  = nimGroup.sumNet(wTare);
+
+    const basketNet = (wBasket - wTare) * nBasket;
+    const grossNet = basketNet + restNet + sampleNet;
+    const foyNet = foyMode === 'percent' ? grossNet * (foyPercent / 100) : foyGroup.sumNet(wTare);
+    const normalBase = foyMode === 'percent' ? grossNet - foyNet : grossNet;
+    const deductAmount = normalBase * (deductPercent / 100);
+    const net = normalBase - deductAmount;
+    const total = price * net;
+    const foyTotal = priceFoy * foyNet;
+    const nimTotal = priceNim * nimNet;
+    const grandTotal = total + foyTotal + nimTotal;
+    const totalWeight = net + foyNet + nimNet;
+
+    document.getElementById('restGross').textContent = fmt(restGroup.sumRaw()) + ' กก.';
+    document.getElementById('restSubtotal').textContent = fmt(restNet) + ' กก.';
+    document.getElementById('sampleSubtotal').textContent = fmt(sampleNet) + ' กก.';
+    document.getElementById('shrimpFoyGross').textContent = fmt(foyGroup.sumRaw()) + ' กก.';
+    document.getElementById('shrimpFoyBase').textContent = fmt(grossNet) + ' กก.';
+    document.getElementById('shrimpFoySubtotal').textContent = fmt(foyNet) + ' กก.';
+    document.getElementById('shrimpNimGross').textContent = fmt(nimGroup.sumRaw()) + ' กก.';
+    document.getElementById('shrimpNimSubtotal').textContent = fmt(nimNet) + ' กก.';
+
+    document.getElementById('out_basket_net').textContent = fmt(basketNet) + ' กก.';
+    document.getElementById('out_rest').textContent = fmt(restNet) + ' กก.';
+    document.getElementById('out_sample').textContent = fmt(sampleNet) + ' กก.';
+    document.getElementById('out_gross').textContent = fmt(grossNet) + ' กก.';
+    const foySplitRow = document.getElementById('out_foy_split_row');
+    if (foyMode === 'percent') {
+      foySplitRow.style.display = '';
+      document.getElementById('out_foy_split').textContent = fmt(foyNet) + ' กก.';
+    } else {
+      foySplitRow.style.display = 'none';
+    }
+    document.getElementById('out_deduct').textContent = deductPercent + '% (' + fmt(deductAmount) + ' กก.)';
+    document.getElementById('out_net').innerHTML = fmt(net) + '<span style="font-size:16px; color:var(--ink-dim)"> กก.</span>';
+    document.getElementById('out_price_rate').textContent = fmt(price) + ' บาท/กก.';
+    document.getElementById('out_price').textContent = fmt(total);
+
+    document.getElementById('out_foy_net').textContent = fmt(foyNet) + ' กก.';
+    document.getElementById('out_foy_rate').textContent = fmt(priceFoy) + ' บาท/กก.';
+    document.getElementById('out_foy_price').textContent = fmt(foyTotal) + ' บาท';
+
+    document.getElementById('out_nim_net').textContent = fmt(nimNet) + ' กก.';
+    document.getElementById('out_nim_rate').textContent = fmt(priceNim) + ' บาท/กก.';
+    document.getElementById('out_nim_price').textContent = fmt(nimTotal) + ' บาท';
+
+    document.getElementById('out_total_weight').innerHTML = fmt(totalWeight) + '<span style="font-size:16px; color:var(--ink-dim)"> กก.</span>';
+    document.getElementById('out_grand_total').innerHTML = fmt(grandTotal) + '<span style="font-size:16px; color:var(--ink-dim)"> บาท</span>';
+  }
+
+  baseIds.forEach(id => inputs[id].addEventListener('input', calculate));
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    baseIds.forEach(id => inputs[id].value = '');
+    restGroup.reset();
+    sampleGroup.reset();
+    foyGroup.reset();
+    nimGroup.reset();
+    setFoyMode('weigh');
+    calculate();
+  });
+
+  calculate();
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').catch(() => {
+        // ignore registration errors (e.g. running from file://)
+      });
+    });
+  }
+</script>
+</body>
+</html>
