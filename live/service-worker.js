@@ -1,19 +1,12 @@
-const CACHE_NAME = 'shimcal-shell-__BUILD_VERSION__';
+const CACHE_NAME = 'shrimp-live-__BUILD_VERSION__';
 const ASSETS = [
   './',
   './index.html',
+  './style.css',
+  './script.js',
   './manifest.json',
   './icon-192.png',
-  './icon-512.png',
-  './calc/index.html',
-  './calc/style.css',
-  './calc/script.js',
-  './scale/index.html',
-  './scale/style.css',
-  './scale/script.js',
-  './live/index.html',
-  './live/style.css',
-  './live/script.js'
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
