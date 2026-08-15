@@ -1,6 +1,8 @@
 const CACHE_NAME = 'shrimp-weigh-cache-__BUILD_VERSION__';
 const FILES_TO_CACHE = [
   './index.html',
+  './style.css',
+  './script.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'

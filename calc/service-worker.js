@@ -2,6 +2,8 @@ const CACHE_NAME = 'shrimp-calculator-__BUILD_VERSION__';
 const ASSETS = [
   './',
   './index.html',
+  './style.css',
+  './script.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
