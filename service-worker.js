@@ -6,7 +6,11 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './calc/index.html',
-  './scale/index.html'
+  './calc/style.css',
+  './calc/script.js',
+  './scale/index.html',
+  './scale/style.css',
+  './scale/script.js'
 ];
 
 self.addEventListener('install', (event) => {
