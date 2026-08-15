@@ -3,7 +3,7 @@ const STORAGE_KEY = 'shrimp-live:data';
 let truckInfo = '';
 let tareWeight = 0;
 let baskets = []; // current truck in progress: [{no, weight}] — weight is gross
-let completedTrucks = []; // [{id, truckInfo, basketCount, tareWeight, totalWeight, savedAt}]
+let completedTrucks = []; // [{id, truckInfo, basketCount, grossTotal, savedAt}] — net is recomputed from the current tare weight, so changing it updates every truck
 
 const truckInfoInput = document.getElementById('truckInfo');
 const tareInput = document.getElementById('tareWeight');
@@ -58,12 +58,13 @@ function render(){
       const row = document.createElement('div');
       row.className = 'truck-row';
       const label = t.truckInfo && t.truckInfo.trim() ? t.truckInfo : '(ไม่ระบุข้อมูลรถ)';
+      const netTotal = t.grossTotal - tareWeight * t.basketCount;
       row.innerHTML = `
         <div>
           <div class="truck-label">${label}</div>
           <div class="truck-meta">${t.basketCount} ตะกร้า</div>
         </div>
-        <div class="truck-weight">${fmt(t.totalWeight)} กก.</div>
+        <div class="truck-weight">${fmt(netTotal)} กก.</div>
         <button type="button" class="truck-rm" aria-label="ลบรายการ">×</button>
       `;
       row.querySelector('.truck-rm').addEventListener('click', () => {
@@ -75,7 +76,7 @@ function render(){
     });
   }
 
-  const grand = completedTrucks.reduce((s, t) => s + t.totalWeight, 0) + netSum;
+  const grand = completedTrucks.reduce((s, t) => s + (t.grossTotal - tareWeight * t.basketCount), 0) + netSum;
   document.getElementById('grandTotal').textContent = fmt(grand) + ' กก.';
 }
 
@@ -96,13 +97,12 @@ basketWeightInput.addEventListener('keydown', (e) => {
 
 finishTruckBtn.addEventListener('click', () => {
   if (baskets.length === 0) return;
-  const netSum = baskets.reduce((s, b) => s + netOf(b.weight), 0);
+  const grossTotal = baskets.reduce((s, b) => s + b.weight, 0);
   completedTrucks.push({
     id: 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
     truckInfo,
     basketCount: baskets.length,
-    tareWeight,
-    totalWeight: netSum,
+    grossTotal,
     savedAt: new Date().toISOString()
   });
   baskets = [];
@@ -154,7 +154,13 @@ function load(){
       truckInfo = parsed.truckInfo || '';
       tareWeight = parsed.tareWeight || 0;
       baskets = Array.isArray(parsed.baskets) ? parsed.baskets : [];
-      completedTrucks = Array.isArray(parsed.completedTrucks) ? parsed.completedTrucks : [];
+      // migrate records saved before trucks stored a recomputable grossTotal
+      // (older format froze a net totalWeight + the tareWeight used at the time)
+      completedTrucks = (Array.isArray(parsed.completedTrucks) ? parsed.completedTrucks : []).map(t =>
+        typeof t.grossTotal === 'number'
+          ? t
+          : { ...t, grossTotal: (t.totalWeight || 0) + (t.tareWeight || 0) * (t.basketCount || 0) }
+      );
     }
   } catch (e) {
     // no existing data yet, or storage unavailable — start fresh in-memory
