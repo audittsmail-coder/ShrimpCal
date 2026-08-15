@@ -18,13 +18,41 @@
   <header>
     <div class="eyebrow">Shrimp Scale · แพกุ้ง</div>
     <h1>ชั่งกุ้งเป็น</h1>
-    <div class="sub">หน้านี้กำลังจะเพิ่มฟีเจอร์เร็วๆ นี้</div>
+    <div class="sub">ชั่งทีละรถ หลายตะกร้าต่อคัน แล้วรวมยอดเมื่อจบคัน</div>
   </header>
 
   <div class="panel">
-    <div class="placeholder">ยังไม่มีฟีเจอร์ในหน้านี้ — รอรายละเอียดเพิ่มเติม</div>
+    <div class="panel-title">ข้อมูลรถ</div>
+    <div class="field">
+      <label>ข้อมูลรถ <span class="unit">(เช่น ทะเบียน, คนขับ)</span></label>
+      <input type="text" id="truckInfo" placeholder="เช่น 70-1234">
+    </div>
+    <div class="field">
+      <label>น้ำหนักตะกร้า <span class="unit">(กก. — หักออกจากทุกตะกร้าที่ชั่ง)</span></label>
+      <input type="number" id="tareWeight" inputmode="decimal" step="0.01" placeholder="0.00">
+    </div>
   </div>
 
+  <div class="panel">
+    <div class="panel-title">ตะกร้า — คันปัจจุบัน <span id="basketNextNo" style="text-transform:none; font-weight:400;"></span></div>
+    <div class="add-basket-row">
+      <input type="number" id="basketWeight" inputmode="decimal" step="0.01" placeholder="0.00">
+      <button type="button" id="addBasketBtn">+ เพิ่มตะกร้า</button>
+    </div>
+    <div id="basketGrid" class="basket-grid"></div>
+    <div class="rest-subtotal"><span>จำนวนตะกร้า</span><span id="basketCount">0 ใบ</span></div>
+    <div class="rest-subtotal"><span>น้ำหนักรวมก่อนหักตะกร้า</span><span id="truckGross">0.00 กก.</span></div>
+    <div class="rest-subtotal"><span>น้ำหนักสุทธิ (หลังหักตะกร้า)</span><span id="truckNet">0.00 กก.</span></div>
+    <button type="button" class="add-row" id="finishTruckBtn">✓ รวมน้ำหนักรถคันนี้ &amp; เริ่มคันใหม่</button>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">สรุปแต่ละคัน</div>
+    <div id="truckList"></div>
+    <div class="rest-subtotal"><span>รวมทุกคัน</span><span id="grandTotal">0.00 กก.</span></div>
+  </div>
+
+  <button class="reset" id="resetBtn">ล้างข้อมูลทั้งหมด</button>
   <div class="credit">Crafted by · Singha Jewvutthipong</div>
 </div>
 

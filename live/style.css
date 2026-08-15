@@ -53,14 +53,168 @@ h1{
   font-weight: 600;
 }
 
-.placeholder{
-  text-align: center;
-  color: var(--ink-dim);
-  font-size: 14px;
-  padding: 34px 10px;
-  border: 1px dashed var(--line);
-  border-radius: 14px;
+.field{ margin-bottom: 12px; }
+.field:last-child{ margin-bottom: 0; }
+label{
+  display:block;
+  font-size: 16px;
+  color: var(--ink);
+  margin-bottom: 5px;
 }
+.unit{ color: var(--ink-dim); font-size: 13.5px; }
+input[type=number], input[type=text]{
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 11px 12px;
+  color: var(--ink);
+  font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 18px;
+  outline: none;
+  transition: border-color .15s ease;
+  -moz-appearance: textfield;
+}
+input[type=text]{ font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif; font-size: 16px; }
+input:focus{ border-color: var(--teal-accent); }
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{
+  -webkit-appearance: none; margin:0;
+}
+
+.add-basket-row{
+  display:grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.add-basket-row button{
+  background: var(--teal-accent);
+  border: none;
+  color: var(--bg);
+  padding: 0 18px;
+  border-radius: 8px;
+  font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.add-basket-row button:active{ opacity: 0.85; }
+
+.basket-grid{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.basket-tile{
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+  text-align:center;
+  cursor: pointer;
+  min-width: 62px;
+}
+.basket-tile:active{ background: var(--panel-2); }
+.basket-tile .no{
+  font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 10px;
+  color: var(--ink-dim);
+}
+.basket-tile .kg{
+  font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.rest-subtotal{
+  display:flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--ink-dim);
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+.rest-subtotal span:last-child{ color: var(--teal-accent); }
+
+.add-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 14px;
+  background: transparent;
+  border: 1px solid var(--teal-accent);
+  color: var(--teal-accent);
+  padding: 12px;
+  border-radius: 8px;
+  font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.add-row:active{ background: var(--panel-2); }
+
+.truck-row{
+  display:grid;
+  grid-template-columns: 1fr auto auto;
+  align-items:center;
+  gap: 10px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 12px;
+  margin-bottom: 8px;
+}
+.truck-label{ font-size: 14.5px; color: var(--ink); font-weight: 600; }
+.truck-meta{ font-size: 12px; color: var(--ink-dim); font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+.truck-weight{
+  font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--teal-accent);
+  white-space: nowrap;
+}
+.truck-rm{
+  width: 30px;
+  height: 30px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink-dim);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.truck-rm:active{ background: var(--panel-2); }
+
+.empty-note{
+  text-align:center;
+  color: var(--ink-dim);
+  font-size: 13.5px;
+  padding: 16px 10px;
+}
+
+.reset{
+  display:block;
+  width:100%;
+  margin-top: 16px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  padding: 10px;
+  border-radius: 8px;
+  font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+  font-size: 15px;
+  cursor: pointer;
+}
+.reset:active{ background: var(--panel-2); }
 
 .credit{
   text-align: right;
