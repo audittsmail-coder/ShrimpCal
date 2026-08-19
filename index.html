@@ -15,6 +15,7 @@
   :root{
     --bg: #0d2b2e;
     --panel: #123539;
+    --panel-2: #163f43;
     --line: #2c565b;
     --ink: #eef2ea;
     --ink-dim: #9fb8b6;
@@ -28,31 +29,38 @@
     font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
     color: var(--ink);
     display:flex;
-    flex-direction:column;
+    flex-direction:row;
     overflow:hidden;
   }
   .tabbar{
     display:flex;
-    background: var(--panel);
-    border-bottom: 1px solid var(--line);
+    flex-direction:column;
+    width: 88px;
     flex-shrink:0;
+    background: var(--panel);
+    border-right: 1px solid var(--line);
     padding-top: env(safe-area-inset-top, 0);
+    padding-left: env(safe-area-inset-left, 0);
+    overflow-y:auto;
   }
   .tabbar button{
-    flex:1;
+    flex:none;
     background: transparent;
     border:none;
-    border-bottom: 3px solid transparent;
+    border-left: 3px solid transparent;
     color: var(--ink-dim);
     font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
-    font-size: 14.5px;
+    font-size: 13px;
     font-weight: 700;
-    padding: 14px 8px 11px;
+    line-height: 1.35;
+    padding: 16px 8px;
+    text-align: center;
     cursor: pointer;
   }
   .tabbar button.active{
     color: var(--teal-accent);
-    border-bottom-color: var(--teal-accent);
+    border-left-color: var(--teal-accent);
+    background: var(--panel-2);
   }
   .frame-wrap{
     flex:1;
