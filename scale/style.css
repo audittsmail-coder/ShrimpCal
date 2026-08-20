@@ -1,22 +1,22 @@
 :root{
-  --bg: #081717;
-  --bg-2: #0c2020;
-  --panel: #0f2b2b;
-  --panel-2: #123434;
-  --line: #1c4444;
+  --bg: #0a1830;
+  --bg-2: #0d2140;
+  --panel: #11233f;
+  --panel-2: #152c4d;
+  --line: #27466b;
   --led: #ff5a36;
   --led-dim: #7a2a18;
-  --aqua: #2dd4bf;
-  --aqua-dim: #1a6b62;
-  --text: #eaf6f3;
-  --muted: #6f9d95;
-  --muted-2: #4f7a72;
+  --aqua: #4da3ff;
+  --aqua-dim: #1f5a94;
+  --text: #eef2f9;
+  --muted: #9db2cc;
+  --muted-2: #6f89ab;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
   background:
-    radial-gradient(1200px 600px at 50% -10%, #0f2c2c 0%, var(--bg) 60%);
+    radial-gradient(1200px 600px at 50% -10%, #13284a 0%, var(--bg) 60%);
   color:var(--text);
   font-family:'Inter',system-ui,sans-serif;
   min-height:100vh;
@@ -101,7 +101,7 @@ header .count{
   cursor:pointer;
 }
 .session-row button:active{transform:scale(0.97);}
-.btn-newtruck{background:linear-gradient(180deg,#34e0c4,var(--aqua)); color:#052321;}
+.btn-newtruck{background:linear-gradient(180deg,#6cc3ff,var(--aqua)); color:#071a33;}
 .btn-history{background:var(--panel-2); border:1px solid var(--line) !important; color:var(--text);}
 
 /* History modal */
@@ -143,12 +143,12 @@ header .count{
   font-weight:700;
   cursor:pointer;
 }
-.hi-open{background:rgba(45,212,191,0.15); color:var(--aqua); border:1px solid var(--aqua-dim) !important;}
+.hi-open{background:rgba(77,163,255,0.15); color:var(--aqua); border:1px solid var(--aqua-dim) !important;}
 .hi-delete{background:rgba(255,90,54,0.12); color:#ff8a65; border:1px solid rgba(255,90,54,0.3) !important;}
 
 /* Scale display */
 .scale{
-  background:linear-gradient(180deg,#0d2626,#081616);
+  background:linear-gradient(180deg,#132846,#060f1f);
   border:1px solid var(--line);
   border-radius:20px;
   padding:18px 16px 16px;
@@ -178,7 +178,7 @@ header .count{
   text-transform:none;
   font-size:12px;
   color:var(--aqua);
-  background:rgba(45,212,191,0.1);
+  background:rgba(77,163,255,0.1);
   border:1px solid var(--aqua-dim);
   border-radius:20px;
   padding:3px 10px;
@@ -188,7 +188,7 @@ header .count{
   display:flex;
   align-items:center;
   gap:8px;
-  background:#0a2222;
+  background:#0a1a30;
   border:1px solid var(--line);
   border-radius:10px;
   padding:9px 12px;
@@ -201,7 +201,7 @@ header .count{
 }
 .tare-row input{
   width:70px;
-  background:#050f0f;
+  background:#050d1a;
   border:1px solid var(--line);
   border-radius:7px;
   color:var(--text);
@@ -220,9 +220,9 @@ header .count{
   align-items:baseline;
   justify-content:center;
   gap:8px;
-  background:#050f0f;
+  background:#050d1a;
   border-radius:12px;
-  border:1px solid #163636;
+  border:1px solid #1a2f4d;
   padding:12px 10px;
   margin-bottom:14px;
 }
@@ -263,13 +263,13 @@ header .count{
 }
 .btn:active{transform:scale(0.97);}
 .btn-add{
-  background:linear-gradient(180deg,#34e0c4,var(--aqua));
-  color:#052321;
-  box-shadow:0 8px 20px -8px rgba(45,212,191,0.55);
+  background:linear-gradient(180deg,#6cc3ff,var(--aqua));
+  color:#071a33;
+  box-shadow:0 8px 20px -8px rgba(77,163,255,0.55);
 }
 .btn-add:disabled{
-  background:#1a3d3a;
-  color:#4f7a72;
+  background:#16283f;
+  color:#6f89ab;
   box-shadow:none;
   cursor:not-allowed;
 }
@@ -320,7 +320,7 @@ header .count{
 }
 .basket .kg-edit{
   width:100%;
-  background:#050f0f;
+  background:#050d1a;
   border:1px solid var(--aqua);
   border-radius:6px;
   color:var(--aqua);
@@ -346,7 +346,7 @@ header .count{
   font-weight:700;
   cursor:pointer;
 }
-.basket .edit-confirm{background:var(--aqua); color:#052321;}
+.basket .edit-confirm{background:var(--aqua); color:#071a33;}
 .basket .edit-cancel{background:var(--panel-2); color:var(--muted); border:1px solid var(--line) !important;}
 .basket.last{
   border-color:var(--aqua-dim);
@@ -397,7 +397,7 @@ header .count{
 .footer-inner{
   max-width:720px;
   margin:0 auto;
-  background:linear-gradient(180deg,#0f2c2c,#0a1e1e);
+  background:linear-gradient(180deg,#13284a,#0a1830);
   border:1px solid var(--line);
   border-radius:18px;
   padding:16px 18px;
@@ -483,7 +483,7 @@ header .count{
 }
 .modal-overlay.hidden{display:none;}
 .modal-box{
-  background:linear-gradient(180deg,#123434,#0c2020);
+  background:linear-gradient(180deg,#152c4d,#0d2140);
   border:1px solid var(--line);
   border-radius:16px;
   padding:22px 20px;
