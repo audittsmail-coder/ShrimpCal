@@ -227,13 +227,13 @@ function buildSummaryHtml(){
 <title>สรุปรายการชั่งกุ้ง</title>
 <style>
   :root{
-    --bg: #0d2b2e;
-    --panel: #123539;
-    --line: #2c565b;
-    --ink: #eef2ea;
-    --ink-dim: #9fb8b6;
+    --bg: #0a1830;
+    --panel: #11233f;
+    --line: #27466b;
+    --ink: #eef2f9;
+    --ink-dim: #9db2cc;
     --shrimp: #e6733a;
-    --teal-accent: #3fb6a8;
+    --teal-accent: #4da3ff;
     --nim-accent: #d9a441;
   }
   *{box-sizing:border-box;}
