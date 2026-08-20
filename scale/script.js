@@ -531,46 +531,10 @@ function exportBackup(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showBackupStatus('✓ บันทึกไฟล์สำรองแล้ว', false);
-}
-
-function importBackup(file){
-  const reader = new FileReader();
-  reader.onload = () => {
-    try{
-      const parsed = JSON.parse(reader.result);
-      baskets = parsed.baskets || [];
-      tareWeight = parsed.tare || 0;
-      percentDeduct = parsed.percent || 0;
-      sampleWeight = parsed.sample || 0;
-      truckNo = parsed.truckNo || '';
-      recordDate = parsed.recordDate || '';
-      records = Array.isArray(parsed.records) ? parsed.records : records;
-      tareInput.value = Number(tareWeight).toFixed(2);
-      percentInput.value = Number(percentDeduct).toFixed(2);
-      sampleInput.value = Number(sampleWeight).toFixed(2);
-      truckInput.value = truckNo;
-      dateInput.value = recordDate;
-      editingIdx = null;
-      render();
-      save();
-      showBackupStatus('✓ โหลดข้อมูลจากไฟล์สำรองแล้ว', false);
-    }catch(e){
-      showBackupStatus('⚠ ไฟล์นี้ใช้ไม่ได้ — กรุณาเลือกไฟล์สำรองที่บันทึกจากแอปนี้', true);
-    }
-  };
-  reader.readAsText(file);
+  showBackupStatus('✓ บันทึกลงในอุปกรณ์แล้ว', false);
 }
 
 document.getElementById('exportBtn').addEventListener('click', exportBackup);
-document.getElementById('importBtn').addEventListener('click', () => {
-  document.getElementById('importFile').click();
-});
-document.getElementById('importFile').addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if(file) importBackup(file);
-  e.target.value = ''; // allow re-selecting the same file later
-});
 
 load();
 
