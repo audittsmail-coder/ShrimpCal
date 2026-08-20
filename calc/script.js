@@ -179,6 +179,132 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 
 calculate();
 
+function buildSummaryHtml(){
+  const rows = [
+    ['น้ำหนักตะกร้าสุทธิ', 'out_basket_net'],
+    ['เศษสุทธิ', 'out_rest'],
+    ['น้ำหนักตัวอย่างกุ้งสุ่ม', 'out_sample'],
+    ['น้ำหนักดิบก่อนหัก', 'out_gross'],
+  ];
+  if (foyMode === 'percent') rows.push(['หักน้ำหนักกุ้งฝอย (%)', 'out_foy_split']);
+  rows.push(
+    ['หักเปอร์เซ็นต์', 'out_deduct'],
+    ['น้ำหนักสุทธิกุ้งปกติ', 'out_net'],
+    ['ราคาต่อกก. (กุ้งปกติ)', 'out_price_rate'],
+    ['ราคารวมกุ้งปกติ', 'out_price'],
+    ['น้ำหนักสุทธิกุ้งฝอย', 'out_foy_net'],
+    ['ราคาต่อกก. (กุ้งฝอย)', 'out_foy_rate'],
+    ['ราคารวมกุ้งฝอย', 'out_foy_price'],
+    ['น้ำหนักสุทธิกุ้งนิ่ม', 'out_nim_net'],
+    ['ราคาต่อกก. (กุ้งนิ่ม)', 'out_nim_rate'],
+    ['ราคารวมกุ้งนิ่ม', 'out_nim_price']
+  );
+
+  const rowsHtml = rows.map(([label, id]) => {
+    const el = document.getElementById(id);
+    const text = el ? el.textContent.trim() : '';
+    return `<div class="row"><span class="label">${label}</span><span class="value">${text}</span></div>`;
+  }).join('');
+
+  const totalWeightText = document.getElementById('out_total_weight').textContent.trim();
+  const grandTotalText = document.getElementById('out_grand_total').textContent.trim();
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+  return `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สรุปรายการชั่งกุ้ง</title>
+<style>
+  :root{
+    --bg: #0d2b2e;
+    --panel: #123539;
+    --line: #2c565b;
+    --ink: #eef2ea;
+    --ink-dim: #9fb8b6;
+    --shrimp: #e6733a;
+    --teal-accent: #3fb6a8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: var(--bg);
+    font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+    color: var(--ink);
+    padding: 24px 18px 40px;
+  }
+  .wrap{ max-width: 480px; margin: 0 auto; }
+  .eyebrow{
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: var(--teal-accent);
+    text-transform: uppercase;
+  }
+  h1{ font-size: 24px; margin: 6px 0 4px; }
+  .meta{ font-size: 14px; color: var(--ink-dim); margin-bottom: 24px; }
+  .rows{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 8px 18px;
+  }
+  .row{
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 16px;
+  }
+  .row:last-child{ border-bottom: none; }
+  .row .label{ color: var(--ink-dim); }
+  .row .value{ font-weight: 700; text-align: right; }
+  .totals{ margin-top: 20px; }
+  .total-row{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+  }
+  .total-row .label{ display:block; font-size: 15px; color: var(--ink-dim); margin-bottom: 4px; }
+  .total-row .big{ display:block; font-size: 30px; font-weight: 800; color: var(--shrimp); }
+  .total-row.grand .big{ color: var(--teal-accent); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">Shrimp Scale · แพกุ้ง</div>
+    <h1>สรุปรายการชั่งกุ้ง</h1>
+    <div class="meta">${dateStr} · ${timeStr} น.</div>
+    <div class="rows">${rowsHtml}</div>
+    <div class="totals">
+      <div class="total-row"><span class="label">น้ำหนักกุ้งทั้งหมด</span><span class="big">${totalWeightText}</span></div>
+      <div class="total-row grand"><span class="label">รวมราคาทั้งหมด</span><span class="big">${grandTotalText}</span></div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+document.getElementById('summaryBtn').addEventListener('click', () => {
+  const html = buildSummaryHtml();
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('เบราว์เซอร์บล็อกการเปิดหน้าต่างใหม่ กรุณาอนุญาต pop-up แล้วลองอีกครั้ง');
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+});
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./service-worker.js').catch(() => {
