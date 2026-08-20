@@ -161,7 +161,28 @@
     });
   }
 
-  const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=7.9514&longitude=98.9978&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,rain,precipitation,weather_code&timezone=Asia%2FBangkok';
+  const DEFAULT_COORDS = { lat: 7.9514, lon: 98.9978 };
+
+  function weatherUrl(lat, lon){
+    return `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,rain,precipitation,weather_code&timezone=auto`;
+  }
+
+  // Tries the browser's geolocation first so the weather matches where the
+  // viewer actually is; falls back to the fixed default coords if
+  // geolocation isn't available, is denied, or times out.
+  function getCoords(){
+    return new Promise((resolve) => {
+      if (!('geolocation' in navigator)) {
+        resolve(DEFAULT_COORDS);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        () => resolve(DEFAULT_COORDS),
+        { timeout: 8000, maximumAge: 10 * 60 * 1000 }
+      );
+    });
+  }
 
   // WMO weather codes -> [icon, Thai description]
   const WEATHER_CODES = {
@@ -196,11 +217,12 @@
   };
 
   // Formats "now" as the same "YYYY-MM-DDTHH:00" local-hour string the API
-  // uses for hourly.time, in Asia/Bangkok time regardless of the viewer's
-  // own device timezone.
-  function bangkokNowHourString(){
+  // uses for hourly.time, in the given IANA timezone (the one Open-Meteo
+  // resolved for the request's coordinates via timezone=auto) regardless
+  // of the viewer's own device timezone.
+  function nowHourStringInZone(tz){
     const parts = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Bangkok',
+      timeZone: tz,
       year: 'numeric', month: '2-digit', day: '2-digit',
       hour: '2-digit', hour12: false
     }).formatToParts(new Date());
@@ -212,11 +234,12 @@
 
   async function loadWeather(){
     try {
-      const res = await fetch(WEATHER_URL);
+      const { lat, lon } = await getCoords();
+      const res = await fetch(weatherUrl(lat, lon));
       if (!res.ok) throw new Error('weather request failed');
       const data = await res.json();
       const h = data.hourly;
-      let idx = h.time.indexOf(bangkokNowHourString());
+      let idx = h.time.indexOf(nowHourStringInZone(data.timezone));
       if (idx === -1) idx = 0;
 
       const [icon, desc] = WEATHER_CODES[h.weather_code[idx]] || ['🌡️', '-'];
