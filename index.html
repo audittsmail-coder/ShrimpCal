@@ -32,12 +32,60 @@
     flex-direction:column;
     overflow:hidden;
   }
+  .weather-bar{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    background: linear-gradient(135deg, var(--panel), var(--panel-2));
+    border-bottom: 1px solid var(--line);
+    padding: 10px 16px;
+    padding-top: calc(10px + env(safe-area-inset-top, 0));
+    flex-shrink:0;
+  }
+  .weather-bar.hidden{ display:none; }
+  .weather-icon{ font-size: 28px; line-height:1; flex-shrink:0; }
+  .weather-info{ flex-shrink:0; min-width:0; }
+  .weather-temp{
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ink);
+    line-height:1.15;
+  }
+  .weather-desc{
+    font-size: 11.5px;
+    color: var(--ink-dim);
+    margin-top: 1px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .weather-stats{
+    display:flex;
+    gap: 14px;
+    margin-left:auto;
+    flex-shrink:0;
+  }
+  .weather-stat{ text-align:right; }
+  .ws-label{
+    display:block;
+    font-size: 9.5px;
+    color: var(--ink-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .ws-value{
+    display:block;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--teal-accent);
+  }
   .tabbar{
     display:flex;
     background: var(--panel);
     border-bottom: 1px solid var(--line);
     flex-shrink:0;
-    padding-top: env(safe-area-inset-top, 0);
   }
   .tabbar button{
     flex:1;
@@ -73,6 +121,17 @@
 </style>
 </head>
 <body>
+  <div class="weather-bar" id="weatherBar">
+    <div class="weather-icon" id="weatherIcon">⛅</div>
+    <div class="weather-info">
+      <div class="weather-temp" id="weatherTemp">--°C</div>
+      <div class="weather-desc" id="weatherDesc">กำลังโหลดสภาพอากาศ…</div>
+    </div>
+    <div class="weather-stats">
+      <div class="weather-stat"><span class="ws-label">ความชื้น</span><span class="ws-value" id="weatherHumidity">--%</span></div>
+      <div class="weather-stat"><span class="ws-label">โอกาสฝน</span><span class="ws-value" id="weatherRain">--%</span></div>
+    </div>
+  </div>
   <nav class="tabbar" id="tabbar">
     <button type="button" class="active" data-tab="calc">คำนวณชั่งกุ้ง</button>
     <button type="button" data-tab="scale">ชั่งกุ้งต้ม</button>
@@ -101,6 +160,76 @@
       });
     });
   }
+
+  const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=7.9514&longitude=98.9978&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,rain,precipitation,weather_code&timezone=Asia%2FBangkok';
+
+  // WMO weather codes -> [icon, Thai description]
+  const WEATHER_CODES = {
+    0: ['☀️', 'ท้องฟ้าแจ่มใส'],
+    1: ['🌤️', 'มีเมฆบางส่วน'],
+    2: ['⛅', 'เมฆเป็นบางส่วน'],
+    3: ['☁️', 'เมฆมาก'],
+    45: ['🌫️', 'หมอก'],
+    48: ['🌫️', 'หมอกน้ำแข็ง'],
+    51: ['🌦️', 'ฝนตกปรอยๆเบาบาง'],
+    53: ['🌦️', 'ฝนตกปรอยๆ'],
+    55: ['🌦️', 'ฝนตกปรอยๆหนัก'],
+    56: ['🌧️', 'ฝนตกปรอยๆเยือกแข็ง'],
+    57: ['🌧️', 'ฝนตกปรอยๆเยือกแข็งหนัก'],
+    61: ['🌧️', 'ฝนตกเบาๆ'],
+    63: ['🌧️', 'ฝนตก'],
+    65: ['🌧️', 'ฝนตกหนัก'],
+    66: ['🌧️', 'ฝนเยือกแข็งเบาๆ'],
+    67: ['🌧️', 'ฝนเยือกแข็งหนัก'],
+    71: ['🌨️', 'หิมะตกเบาๆ'],
+    73: ['🌨️', 'หิมะตก'],
+    75: ['🌨️', 'หิมะตกหนัก'],
+    77: ['🌨️', 'เกล็ดหิมะ'],
+    80: ['🌦️', 'ฝนตกเป็นช่วงๆเบาๆ'],
+    81: ['🌦️', 'ฝนตกเป็นช่วงๆ'],
+    82: ['🌦️', 'ฝนตกเป็นช่วงๆหนัก'],
+    85: ['🌨️', 'หิมะตกเป็นช่วงๆเบาๆ'],
+    86: ['🌨️', 'หิมะตกเป็นช่วงๆหนัก'],
+    95: ['⛈️', 'พายุฝนฟ้าคะนอง'],
+    96: ['⛈️', 'พายุฝนฟ้าคะนองมีลูกเห็บ'],
+    99: ['⛈️', 'พายุฝนฟ้าคะนองมีลูกเห็บหนัก'],
+  };
+
+  // Formats "now" as the same "YYYY-MM-DDTHH:00" local-hour string the API
+  // uses for hourly.time, in Asia/Bangkok time regardless of the viewer's
+  // own device timezone.
+  function bangkokNowHourString(){
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Bangkok',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', hour12: false
+    }).formatToParts(new Date());
+    const get = (type) => parts.find((p) => p.type === type).value;
+    let hour = get('hour');
+    if (hour === '24') hour = '00';
+    return `${get('year')}-${get('month')}-${get('day')}T${hour}:00`;
+  }
+
+  async function loadWeather(){
+    try {
+      const res = await fetch(WEATHER_URL);
+      if (!res.ok) throw new Error('weather request failed');
+      const data = await res.json();
+      const h = data.hourly;
+      let idx = h.time.indexOf(bangkokNowHourString());
+      if (idx === -1) idx = 0;
+
+      const [icon, desc] = WEATHER_CODES[h.weather_code[idx]] || ['🌡️', '-'];
+      document.getElementById('weatherIcon').textContent = icon;
+      document.getElementById('weatherTemp').textContent = Math.round(h.temperature_2m[idx]) + '°C';
+      document.getElementById('weatherDesc').textContent = desc;
+      document.getElementById('weatherHumidity').textContent = Math.round(h.relative_humidity_2m[idx]) + '%';
+      document.getElementById('weatherRain').textContent = Math.round(h.precipitation_probability[idx]) + '%';
+    } catch (e) {
+      document.getElementById('weatherBar').classList.add('hidden');
+    }
+  }
+  loadWeather();
 </script>
 </body>
 </html>
