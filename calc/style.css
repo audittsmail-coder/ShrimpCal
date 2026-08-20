@@ -249,6 +249,22 @@ input[type=number]::-webkit-inner-spin-button{
 }
 .reset:active{ background: var(--panel-2); }
 
+.summary-btn{
+  display:block;
+  width:100%;
+  margin-top: 16px;
+  background: var(--teal-accent);
+  border: none;
+  color: var(--bg);
+  padding: 13px;
+  border-radius: 8px;
+  font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.summary-btn:active{ opacity: 0.85; }
+
 .credit{
   text-align: right;
   margin-top: 16px;
