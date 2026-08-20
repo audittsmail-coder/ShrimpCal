@@ -179,35 +179,41 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 
 calculate();
 
+function txt(id){
+  const el = document.getElementById(id);
+  return el ? el.textContent.trim() : '';
+}
+
 function buildSummaryHtml(){
-  const rows = [
-    ['น้ำหนักตะกร้าสุทธิ', 'out_basket_net'],
+  const statRows = [
+    ['ตะกร้าสุทธิ', 'out_basket_net'],
     ['เศษสุทธิ', 'out_rest'],
-    ['น้ำหนักตัวอย่างกุ้งสุ่ม', 'out_sample'],
-    ['น้ำหนักดิบก่อนหัก', 'out_gross'],
+    ['ตัวอย่างกุ้งสุ่ม', 'out_sample'],
+    ['ดิบก่อนหัก', 'out_gross'],
   ];
-  if (foyMode === 'percent') rows.push(['หักน้ำหนักกุ้งฝอย (%)', 'out_foy_split']);
-  rows.push(
-    ['หักเปอร์เซ็นต์', 'out_deduct'],
-    ['น้ำหนักสุทธิกุ้งปกติ', 'out_net'],
-    ['ราคาต่อกก. (กุ้งปกติ)', 'out_price_rate'],
-    ['ราคารวมกุ้งปกติ', 'out_price'],
-    ['น้ำหนักสุทธิกุ้งฝอย', 'out_foy_net'],
-    ['ราคาต่อกก. (กุ้งฝอย)', 'out_foy_rate'],
-    ['ราคารวมกุ้งฝอย', 'out_foy_price'],
-    ['น้ำหนักสุทธิกุ้งนิ่ม', 'out_nim_net'],
-    ['ราคาต่อกก. (กุ้งนิ่ม)', 'out_nim_rate'],
-    ['ราคารวมกุ้งนิ่ม', 'out_nim_price']
-  );
+  if (foyMode === 'percent') statRows.push(['หักน้ำหนักกุ้งฝอย', 'out_foy_split']);
+  statRows.push(['หักเปอร์เซ็นต์', 'out_deduct']);
 
-  const rowsHtml = rows.map(([label, id]) => {
-    const el = document.getElementById(id);
-    const text = el ? el.textContent.trim() : '';
-    return `<div class="row"><span class="label">${label}</span><span class="value">${text}</span></div>`;
-  }).join('');
+  const statsHtml = statRows.map(([label, id]) =>
+    `<div class="stat"><div class="stat-label">${label}</div><div class="stat-value">${txt(id)}</div></div>`
+  ).join('');
 
-  const totalWeightText = document.getElementById('out_total_weight').textContent.trim();
-  const grandTotalText = document.getElementById('out_grand_total').textContent.trim();
+  const categories = [
+    { cls: 'cat-normal', title: 'กุ้งปกติ', weight: txt('out_net'), rate: txt('out_price_rate'), total: txt('out_price') + ' บาท' },
+    { cls: 'cat-foy',    title: 'กุ้งฝอย',  weight: txt('out_foy_net'), rate: txt('out_foy_rate'), total: txt('out_foy_price') },
+    { cls: 'cat-nim',    title: 'กุ้งนิ่ม',  weight: txt('out_nim_net'), rate: txt('out_nim_rate'), total: txt('out_nim_price') },
+  ];
+  const catsHtml = categories.map(c => `
+    <div class="cat-card ${c.cls}">
+      <div class="cat-title">${c.title}</div>
+      <div class="cat-weight">${c.weight}</div>
+      <div class="cat-rate">${c.rate}</div>
+      <div class="cat-total">${c.total}</div>
+    </div>
+  `).join('');
+
+  const totalWeightText = txt('out_total_weight');
+  const grandTotalText = txt('out_grand_total');
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -228,6 +234,7 @@ function buildSummaryHtml(){
     --ink-dim: #9fb8b6;
     --shrimp: #e6733a;
     --teal-accent: #3fb6a8;
+    --nim-accent: #d9a441;
   }
   *{box-sizing:border-box;}
   body{
@@ -235,47 +242,81 @@ function buildSummaryHtml(){
     background: var(--bg);
     font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
     color: var(--ink);
-    padding: 24px 18px 40px;
+    padding: 18px 16px 28px;
   }
-  .wrap{ max-width: 480px; margin: 0 auto; }
+  .wrap{ max-width: 520px; margin: 0 auto; }
   .eyebrow{
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 0.18em;
     color: var(--teal-accent);
     text-transform: uppercase;
   }
-  h1{ font-size: 24px; margin: 6px 0 4px; }
-  .meta{ font-size: 14px; color: var(--ink-dim); margin-bottom: 24px; }
-  .rows{
+  h1{ font-size: 21px; margin: 4px 0 3px; }
+  .meta{ font-size: 13px; color: var(--ink-dim); margin-bottom: 14px; }
+
+  .section-label{
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    font-weight: 600;
+    margin: 14px 0 6px;
+  }
+  .section-label:first-of-type{ margin-top: 0; }
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .stat{
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 8px 18px;
+    border-radius: 10px;
+    padding: 8px 10px;
   }
-  .row{
-    display:flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px dashed var(--line);
-    font-size: 16px;
+  .stat-label{ font-size: 10.5px; color: var(--ink-dim); margin-bottom: 2px; }
+  .stat-value{ font-size: 13.5px; font-weight: 700; }
+
+  .cat-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
-  .row:last-child{ border-bottom: none; }
-  .row .label{ color: var(--ink-dim); }
-  .row .value{ font-weight: 700; text-align: right; }
-  .totals{ margin-top: 20px; }
-  .total-row{
+  .cat-card{
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 16px 20px;
-    margin-bottom: 14px;
+    border-top: 3px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 10px 12px;
+    text-align: center;
   }
-  .total-row .label{ display:block; font-size: 15px; color: var(--ink-dim); margin-bottom: 4px; }
-  .total-row .big{ display:block; font-size: 30px; font-weight: 800; color: var(--shrimp); }
-  .total-row.grand .big{ color: var(--teal-accent); }
+  .cat-normal{ border-top-color: var(--shrimp); }
+  .cat-foy{ border-top-color: var(--teal-accent); }
+  .cat-nim{ border-top-color: var(--nim-accent); }
+  .cat-title{ font-size: 12px; color: var(--ink-dim); margin-bottom: 6px; font-weight: 600; }
+  .cat-weight{ font-size: 17px; font-weight: 800; }
+  .cat-normal .cat-weight{ color: var(--shrimp); }
+  .cat-foy .cat-weight{ color: var(--teal-accent); }
+  .cat-nim .cat-weight{ color: var(--nim-accent); }
+  .cat-rate{ font-size: 10.5px; color: var(--ink-dim); margin-top: 6px; }
+  .cat-total{ font-size: 13px; font-weight: 700; margin-top: 2px; }
+
+  .grand-bar{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .grand-card{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .grand-label{ font-size: 12.5px; color: var(--ink-dim); margin-bottom: 3px; }
+  .grand-value{ font-size: 22px; font-weight: 800; color: var(--shrimp); }
+  .grand-card.price .grand-value{ color: var(--teal-accent); }
 </style>
 </head>
 <body>
@@ -283,10 +324,17 @@ function buildSummaryHtml(){
     <div class="eyebrow">Shrimp Scale · แพกุ้ง</div>
     <h1>สรุปรายการชั่งกุ้ง</h1>
     <div class="meta">${dateStr} · ${timeStr} น.</div>
-    <div class="rows">${rowsHtml}</div>
-    <div class="totals">
-      <div class="total-row"><span class="label">น้ำหนักกุ้งทั้งหมด</span><span class="big">${totalWeightText}</span></div>
-      <div class="total-row grand"><span class="label">รวมราคาทั้งหมด</span><span class="big">${grandTotalText}</span></div>
+
+    <div class="section-label">น้ำหนักตะกร้า / เศษ / หัก</div>
+    <div class="stat-grid">${statsHtml}</div>
+
+    <div class="section-label">แยกตามประเภทกุ้ง</div>
+    <div class="cat-grid">${catsHtml}</div>
+
+    <div class="section-label">รวมทั้งหมด</div>
+    <div class="grand-bar">
+      <div class="grand-card weight"><div class="grand-label">น้ำหนักรวม</div><div class="grand-value">${totalWeightText}</div></div>
+      <div class="grand-card price"><div class="grand-label">ราคารวม</div><div class="grand-value">${grandTotalText}</div></div>
     </div>
   </div>
 </body>
