@@ -510,32 +510,6 @@ addBtn.addEventListener('click', addBasket);
 undoBtn.addEventListener('click', undoLast);
 clearBtn.addEventListener('click', clearAll);
 
-function showBackupStatus(msg, isError){
-  const el = document.getElementById('backupStatus');
-  el.textContent = msg;
-  el.style.color = isError ? '#ff8a65' : 'var(--aqua)';
-  el.style.display = 'block';
-  setTimeout(() => { el.style.display = 'none'; }, 3500);
-}
-
-function exportBackup(){
-  const data = { baskets, tare: tareWeight, percent: percentDeduct, sample: sampleWeight, truckNo, recordDate, records, exportedAt: new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const dateForName = (recordDate || 'data').replace(/-/g,'');
-  const truckForName = (truckNo || '').trim().replace(/[^a-zA-Z0-9-]/g,'') || 'shrimp';
-  a.href = url;
-  a.download = `shrimp-weigh_${truckForName}_${dateForName}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showBackupStatus('✓ บันทึกลงในอุปกรณ์แล้ว', false);
-}
-
-document.getElementById('exportBtn').addEventListener('click', exportBackup);
-
 load();
 
 if('serviceWorker' in navigator){
