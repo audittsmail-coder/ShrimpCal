@@ -45,6 +45,16 @@
   .weather-bar.hidden{ display:none; }
   .weather-icon{ font-size: 28px; line-height:1; flex-shrink:0; }
   .weather-info{ flex-shrink:0; min-width:0; }
+  .weather-location{
+    font-size: 10.5px;
+    color: var(--ink-dim);
+    margin-bottom: 2px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 160px;
+  }
+  .weather-location:empty{ display:none; }
   .weather-temp{
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     font-size: 18px;
@@ -124,6 +134,7 @@
   <div class="weather-bar" id="weatherBar">
     <div class="weather-icon" id="weatherIcon">⛅</div>
     <div class="weather-info">
+      <div class="weather-location" id="weatherLocation"></div>
       <div class="weather-temp" id="weatherTemp">--°C</div>
       <div class="weather-desc" id="weatherDesc">กำลังโหลดสภาพอากาศ…</div>
     </div>
@@ -167,20 +178,33 @@
     return `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,rain,precipitation,weather_code&timezone=auto`;
   }
 
+  function placeNameUrl(lat, lon){
+    return `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=th`;
+  }
+
   // Tries the browser's geolocation first so the weather matches where the
   // viewer actually is; falls back to the fixed default coords if
-  // geolocation isn't available, is denied, or times out.
+  // geolocation isn't available, is denied, or times out. Guards with our
+  // own setTimeout as well — some browsers leave an unanswered permission
+  // prompt hanging indefinitely instead of honoring the API's own timeout.
   function getCoords(){
     return new Promise((resolve) => {
       if (!('geolocation' in navigator)) {
         resolve(DEFAULT_COORDS);
         return;
       }
+      let settled = false;
+      const finish = (coords) => {
+        if (settled) return;
+        settled = true;
+        resolve(coords);
+      };
       navigator.geolocation.getCurrentPosition(
-        (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-        () => resolve(DEFAULT_COORDS),
+        (pos) => finish({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        () => finish(DEFAULT_COORDS),
         { timeout: 8000, maximumAge: 10 * 60 * 1000 }
       );
+      setTimeout(() => finish(DEFAULT_COORDS), 8000);
     });
   }
 
@@ -233,23 +257,44 @@
   }
 
   async function loadWeather(){
-    try {
-      const { lat, lon } = await getCoords();
-      const res = await fetch(weatherUrl(lat, lon));
-      if (!res.ok) throw new Error('weather request failed');
-      const data = await res.json();
-      const h = data.hourly;
-      let idx = h.time.indexOf(nowHourStringInZone(data.timezone));
-      if (idx === -1) idx = 0;
+    const { lat, lon } = await getCoords();
 
-      const [icon, desc] = WEATHER_CODES[h.weather_code[idx]] || ['🌡️', '-'];
-      document.getElementById('weatherIcon').textContent = icon;
-      document.getElementById('weatherTemp').textContent = Math.round(h.temperature_2m[idx]) + '°C';
-      document.getElementById('weatherDesc').textContent = desc;
-      document.getElementById('weatherHumidity').textContent = Math.round(h.relative_humidity_2m[idx]) + '%';
-      document.getElementById('weatherRain').textContent = Math.round(h.precipitation_probability[idx]) + '%';
-    } catch (e) {
+    const [weatherResult, placeResult] = await Promise.allSettled([
+      fetch(weatherUrl(lat, lon)).then((r) => {
+        if (!r.ok) throw new Error('weather request failed');
+        return r.json();
+      }),
+      fetch(placeNameUrl(lat, lon)).then((r) => {
+        if (!r.ok) throw new Error('geocode request failed');
+        return r.json();
+      }),
+    ]);
+
+    if (weatherResult.status !== 'fulfilled') {
       document.getElementById('weatherBar').classList.add('hidden');
+      return;
+    }
+
+    const h = weatherResult.value.hourly;
+    let idx = h.time.indexOf(nowHourStringInZone(weatherResult.value.timezone));
+    if (idx === -1) idx = 0;
+
+    const [icon, desc] = WEATHER_CODES[h.weather_code[idx]] || ['🌡️', '-'];
+    document.getElementById('weatherIcon').textContent = icon;
+    document.getElementById('weatherTemp').textContent = Math.round(h.temperature_2m[idx]) + '°C';
+    document.getElementById('weatherDesc').textContent = desc;
+    document.getElementById('weatherHumidity').textContent = Math.round(h.relative_humidity_2m[idx]) + '%';
+    document.getElementById('weatherRain').textContent = Math.round(h.precipitation_probability[idx]) + '%';
+
+    // Location name is a nice-to-have — leave it blank (the element
+    // collapses via CSS) rather than affecting the rest of the weather bar
+    // if this lookup fails.
+    if (placeResult.status === 'fulfilled') {
+      const p = placeResult.value;
+      const name = p.locality || p.city || p.principalSubdivision || '';
+      const region = (name && p.principalSubdivision && p.principalSubdivision !== name) ? p.principalSubdivision : '';
+      const label = region ? `${name}, ${region}` : name;
+      if (label) document.getElementById('weatherLocation').textContent = '📍 ' + label;
     }
   }
   loadWeather();
