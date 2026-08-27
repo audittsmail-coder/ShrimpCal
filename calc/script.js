@@ -317,10 +317,28 @@ function buildSummaryHtml(){
   .grand-label{ font-size: 12.5px; color: var(--ink-dim); margin-bottom: 3px; }
   .grand-value{ font-size: 22px; font-weight: 800; color: var(--shrimp); }
   .grand-card.price .grand-value{ color: var(--teal-accent); }
+
+  .back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap: 6px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 14px;
+  }
+  .back-btn:active{ background: var(--panel-2); }
 </style>
 </head>
 <body>
   <div class="wrap">
+    <button type="button" class="back-btn" onclick="window.close()">← ย้อนกลับ</button>
     <div class="eyebrow">Shrimp Scale · แพกุ้ง</div>
     <h1>สรุปรายการชั่งกุ้ง</h1>
     <div class="meta">${dateStr} · ${timeStr} น.</div>
