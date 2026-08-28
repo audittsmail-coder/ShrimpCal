@@ -2,11 +2,13 @@ const STORAGE_KEY = 'shrimp-live:data';
 
 let truckInfo = '';
 let tareWeight = 0;
+let deductPercent = 0;
 let baskets = []; // current truck in progress: [{no, weight}] — weight is gross
-let completedTrucks = []; // [{id, truckInfo, basketCount, grossTotal, savedAt}] — net is recomputed from the current tare weight, so changing it updates every truck
+let completedTrucks = []; // [{id, truckInfo, basketCount, grossTotal, savedAt}] — net/final weight is recomputed from the current tare weight and deduct %, so changing either updates every truck
 
 const truckInfoInput = document.getElementById('truckInfo');
 const tareInput = document.getElementById('tareWeight');
+const deductInput = document.getElementById('deductPercent');
 const basketWeightInput = document.getElementById('basketWeight');
 const addBasketBtn = document.getElementById('addBasketBtn');
 const finishTruckBtn = document.getElementById('finishTruckBtn');
@@ -25,6 +27,10 @@ function num(el){
 
 function netOf(gross){
   return gross - tareWeight;
+}
+
+function applyDeduct(net){
+  return net - net * (deductPercent / 100);
 }
 
 function render(){
@@ -46,9 +52,14 @@ function render(){
 
   const grossSum = baskets.reduce((s, b) => s + b.weight, 0);
   const netSum = baskets.reduce((s, b) => s + netOf(b.weight), 0);
+  const deductAmount = netSum * (deductPercent / 100);
+  const finalSum = netSum - deductAmount;
   document.getElementById('basketCount').textContent = baskets.length + ' ใบ';
   document.getElementById('truckGross').textContent = fmt(grossSum) + ' กก.';
   document.getElementById('truckNet').textContent = fmt(netSum) + ' กก.';
+  document.getElementById('truckDeductPct').textContent = deductPercent;
+  document.getElementById('truckDeduct').textContent = '-' + fmt(deductAmount) + ' กก.';
+  document.getElementById('truckFinal').textContent = fmt(finalSum) + ' กก.';
 
   truckList.innerHTML = '';
   if (completedTrucks.length === 0) {
@@ -58,13 +69,13 @@ function render(){
       const row = document.createElement('div');
       row.className = 'truck-row';
       const label = t.truckInfo && t.truckInfo.trim() ? t.truckInfo : '(ไม่ระบุข้อมูลรถ)';
-      const netTotal = t.grossTotal - tareWeight * t.basketCount;
+      const finalTotal = applyDeduct(t.grossTotal - tareWeight * t.basketCount);
       row.innerHTML = `
         <div>
           <div class="truck-label">${label}</div>
           <div class="truck-meta">${t.basketCount} ตะกร้า</div>
         </div>
-        <div class="truck-weight">${fmt(netTotal)} กก.</div>
+        <div class="truck-weight">${fmt(finalTotal)} กก.</div>
         <button type="button" class="truck-rm" aria-label="ลบรายการ">×</button>
       `;
       row.querySelector('.truck-rm').addEventListener('click', () => {
@@ -76,7 +87,7 @@ function render(){
     });
   }
 
-  const grand = completedTrucks.reduce((s, t) => s + (t.grossTotal - tareWeight * t.basketCount), 0) + netSum;
+  const grand = completedTrucks.reduce((s, t) => s + applyDeduct(t.grossTotal - tareWeight * t.basketCount), 0) + finalSum;
   document.getElementById('grandTotal').textContent = fmt(grand) + ' กก.';
 }
 
@@ -117,8 +128,10 @@ resetBtn.addEventListener('click', () => {
   completedTrucks = [];
   truckInfo = '';
   tareWeight = 0;
+  deductPercent = 0;
   truckInfoInput.value = '';
   tareInput.value = '';
+  deductInput.value = '';
   basketWeightInput.value = '';
   save();
   render();
@@ -135,12 +148,18 @@ tareInput.addEventListener('input', () => {
   save();
 });
 
+deductInput.addEventListener('input', () => {
+  deductPercent = num(deductInput);
+  render();
+  save();
+});
+
 let storageOk = true;
 
 function save(){
   if (!storageOk) return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ truckInfo, tareWeight, baskets, completedTrucks }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ truckInfo, tareWeight, deductPercent, baskets, completedTrucks }));
   } catch (e) {
     storageOk = false; // storage unavailable here; app continues to work in-memory silently
   }
@@ -153,6 +172,7 @@ function load(){
       const parsed = JSON.parse(raw);
       truckInfo = parsed.truckInfo || '';
       tareWeight = parsed.tareWeight || 0;
+      deductPercent = parsed.deductPercent || 0;
       baskets = Array.isArray(parsed.baskets) ? parsed.baskets : [];
       // migrate records saved before trucks stored a recomputable grossTotal
       // (older format froze a net totalWeight + the tareWeight used at the time)
@@ -167,6 +187,7 @@ function load(){
   }
   truckInfoInput.value = truckInfo;
   tareInput.value = tareWeight ? Number(tareWeight).toFixed(2) : '';
+  deductInput.value = deductPercent ? Number(deductPercent).toFixed(1) : '';
   render();
 }
 
