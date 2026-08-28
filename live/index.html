@@ -39,11 +39,27 @@
 
   <div class="panel">
     <div class="panel-title">ตะกร้า — คันปัจจุบัน <span id="basketNextNo" style="text-transform:none; font-weight:400;"></span></div>
-    <div class="add-basket-row">
-      <input type="number" id="basketWeight" inputmode="decimal" step="0.01" placeholder="0.00">
-      <button type="button" id="addBasketBtn">+ เพิ่มตะกร้า</button>
+    <div class="mode-toggle" id="basketModeToggle">
+      <button type="button" class="mode-btn active" data-mode="perbasket">ชั่งทีละตะกร้า</button>
+      <button type="button" class="mode-btn" data-mode="bulk">ใส่น้ำหนักรวมทั้งคัน</button>
     </div>
-    <div id="basketGrid" class="basket-grid"></div>
+    <div id="perBasketMode">
+      <div class="add-basket-row">
+        <input type="number" id="basketWeight" inputmode="decimal" step="0.01" placeholder="0.00">
+        <button type="button" id="addBasketBtn">+ เพิ่มตะกร้า</button>
+      </div>
+      <div id="basketGrid" class="basket-grid"></div>
+    </div>
+    <div id="bulkMode" style="display:none;">
+      <div class="field">
+        <label>น้ำหนักรวมทั้งคัน <span class="unit">(กก.)</span></label>
+        <input type="number" id="bulkWeight" inputmode="decimal" step="0.01" placeholder="0.00">
+      </div>
+      <div class="field">
+        <label>จำนวนตะกร้า <span class="unit">(ใบ — ใช้หักน้ำหนักตะกร้ารวม)</span></label>
+        <input type="number" id="bulkBasketCount" inputmode="numeric" step="1" placeholder="0">
+      </div>
+    </div>
     <div class="rest-subtotal"><span>จำนวนตะกร้า</span><span id="basketCount">0 ใบ</span></div>
     <div class="rest-subtotal"><span>น้ำหนักรวมก่อนหักตะกร้า</span><span id="truckGross">0.00 กก.</span></div>
     <div class="rest-subtotal"><span>น้ำหนักสุทธิ (หลังหักตะกร้า)</span><span id="truckNet">0.00 กก.</span></div>
