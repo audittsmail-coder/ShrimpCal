@@ -25,6 +25,18 @@ body{
 }
 .wrap{max-width:720px;margin:0 auto;}
 
+@media (min-width: 760px){
+  .page-layout{
+    display:flex;
+    align-items:flex-start;
+    gap: 20px;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+  .wrap{ max-width:none; margin:0; flex:1 1 auto; min-width:0; }
+  .footer{ max-width:none; margin:0 !important; flex:0 0 380px; min-width:0; position:sticky; top:20px; }
+}
+
 header{
   display:flex;
   align-items:baseline;
