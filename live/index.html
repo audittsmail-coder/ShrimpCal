@@ -28,6 +28,10 @@
       <input type="text" id="truckInfo" placeholder="เช่น 70-1234">
     </div>
     <div class="field">
+      <label>วันที่</label>
+      <input type="date" id="recordDate">
+    </div>
+    <div class="field">
       <label>น้ำหนักตะกร้า <span class="unit">(กก. — หักออกจากทุกตะกร้าที่ชั่ง)</span></label>
       <input type="number" id="tareWeight" inputmode="decimal" step="0.01" placeholder="0.00">
     </div>
@@ -74,6 +78,7 @@
     <div class="rest-subtotal"><span>รวมทุกคัน</span><span id="grandTotal">0.00 กก.</span></div>
   </div>
 
+  <button type="button" class="summary-btn" id="summaryBtn">สรุปรายการทั้งหมด</button>
   <button class="reset" id="resetBtn">ล้างข้อมูลทั้งหมด</button>
   <div class="credit">Crafted by · Singha Jewvutthipong</div>
 </div>
