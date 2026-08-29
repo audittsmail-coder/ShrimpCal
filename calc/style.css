@@ -71,7 +71,7 @@ h1{
   font-weight: 600;
 }
 
-.field{ margin-bottom: 12px; }
+.field{ margin-bottom: 12px; overflow: hidden; }
 .field:last-child{ margin-bottom: 0; }
 label{
   display:block;
@@ -95,7 +95,13 @@ input[type=number], input[type=date]{
   transition: border-color .15s ease;
   -moz-appearance: textfield;
 }
-input[type=date]{ color-scheme: dark; font-size: 16px; }
+input[type=date]{
+  color-scheme: dark;
+  font-size: 16px;
+  overflow: hidden;
+}
+input[type=date]::-webkit-date-and-time-value{ min-width: 0; text-align: left; }
+input[type=date]::-webkit-calendar-picker-indicator{ margin-left: 4px; padding: 4px; }
 input[type=number]:focus, input[type=date]:focus{ border-color: var(--teal-accent); }
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button{

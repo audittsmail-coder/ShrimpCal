@@ -69,6 +69,7 @@ header .count{
   border:1px solid var(--line);
   border-radius:12px;
   padding:8px 12px;
+  overflow:hidden;
 }
 .info-field label{
   display:block;
@@ -81,6 +82,8 @@ header .count{
 }
 .info-field input{
   width:100%;
+  max-width:100%;
+  min-width:0;
   background:transparent;
   border:none;
   outline:none;
@@ -94,7 +97,10 @@ header .count{
 .info-field input[type="date"]{
   font-family:'JetBrains Mono',monospace;
   color-scheme:dark;
+  overflow:hidden;
 }
+.info-field input[type="date"]::-webkit-date-and-time-value{ min-width:0; text-align:left; }
+.info-field input[type="date"]::-webkit-calendar-picker-indicator{ margin-left:4px; padding:4px; }
 
 /* Session controls: start new truck / view history */
 .session-row{
