@@ -22,6 +22,23 @@ body{
 }
 .wrap{ max-width: 480px; margin: 0 auto; }
 
+.layout-inputs, .layout-result{ min-width: 0; }
+
+@media (min-width: 760px){
+  .wrap{ max-width: 1080px; }
+  .layout{
+    display:flex;
+    align-items:flex-start;
+    gap: 20px;
+  }
+  .layout-inputs{ flex: 1 1 auto; }
+  .layout-result{
+    flex: 0 0 380px;
+    position: sticky;
+    top: 20px;
+  }
+}
+
 header{ margin-bottom: 18px; }
 .eyebrow{
   font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
@@ -64,6 +81,8 @@ label{
 .unit{ color: var(--ink-dim); font-size: 13.5px; }
 input[type=number], input[type=text], input[type=date]{
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -109,7 +128,7 @@ input[type=number]::-webkit-inner-spin-button{
 
 .add-basket-row{
   display:grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0,1fr) auto;
   gap: 10px;
   margin-bottom: 14px;
 }
