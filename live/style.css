@@ -62,7 +62,7 @@ label{
   margin-bottom: 5px;
 }
 .unit{ color: var(--ink-dim); font-size: 13.5px; }
-input[type=number], input[type=text]{
+input[type=number], input[type=text], input[type=date]{
   width: 100%;
   background: var(--bg);
   border: 1px solid var(--line);
@@ -76,6 +76,7 @@ input[type=number], input[type=text]{
   -moz-appearance: textfield;
 }
 input[type=text]{ font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif; font-size: 16px; }
+input[type=date]{ color-scheme: dark; font-size: 16px; }
 input:focus{ border-color: var(--teal-accent); }
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button{
@@ -224,6 +225,22 @@ input[type=number]::-webkit-inner-spin-button{
   font-size: 13.5px;
   padding: 16px 10px;
 }
+
+.summary-btn{
+  display:block;
+  width:100%;
+  margin-top: 16px;
+  background: var(--teal-accent);
+  border: none;
+  color: var(--bg);
+  padding: 13px;
+  border-radius: 8px;
+  font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.summary-btn:active{ opacity: 0.85; }
 
 .reset{
   display:block;

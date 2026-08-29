@@ -1,6 +1,13 @@
 const baseIds = ['w_basket','w_tare','n_basket','deductPercent','price','priceFoy','priceNim','foyPercent'];
 const inputs = Object.fromEntries(baseIds.map(id => [id, document.getElementById(id)]));
 
+const recordDateInput = document.getElementById('recordDate');
+function todayISO(){
+  const now = new Date();
+  return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+}
+recordDateInput.value = todayISO();
+
 let foyMode = 'weigh';
 const foyModeToggle = document.getElementById('foyModeToggle');
 const foyWeighMode = document.getElementById('foyWeighMode');
@@ -174,6 +181,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   foyGroup.reset();
   nimGroup.reset();
   setFoyMode('weigh');
+  recordDateInput.value = todayISO();
   calculate();
 });
 
@@ -216,7 +224,10 @@ function buildSummaryHtml(){
   const grandTotalText = txt('out_grand_total');
 
   const now = new Date();
-  const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const recordDateValue = recordDateInput.value;
+  const dateStr = recordDateValue
+    ? new Date(recordDateValue + 'T00:00:00').toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })
+    : now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
   const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 
   return `<!DOCTYPE html>

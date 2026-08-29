@@ -1,6 +1,7 @@
 const STORAGE_KEY = 'shrimp-live:data';
 
 let truckInfo = '';
+let recordDate = '';
 let tareWeight = 0;
 let deductPercent = 0;
 let basketMode = 'perbasket'; // 'perbasket' or 'bulk'
@@ -10,6 +11,7 @@ let bulkBasketCount = 0; // current truck in progress (bulk mode): basket count,
 let completedTrucks = []; // [{id, truckInfo, basketCount, grossTotal, savedAt}] — net/final weight is recomputed from the current tare weight and deduct %, so changing either updates every truck
 
 const truckInfoInput = document.getElementById('truckInfo');
+const recordDateInput = document.getElementById('recordDate');
 const tareInput = document.getElementById('tareWeight');
 const deductInput = document.getElementById('deductPercent');
 const basketModeToggle = document.getElementById('basketModeToggle');
@@ -41,6 +43,11 @@ basketModeToggle.addEventListener('click', (e) => {
 
 function fmt(n){
   return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function todayISO(){
+  const now = new Date();
+  return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
 }
 
 function num(el){
@@ -171,9 +178,11 @@ resetBtn.addEventListener('click', () => {
   bulkBasketCount = 0;
   completedTrucks = [];
   truckInfo = '';
+  recordDate = todayISO();
   tareWeight = 0;
   deductPercent = 0;
   truckInfoInput.value = '';
+  recordDateInput.value = recordDate;
   tareInput.value = '';
   deductInput.value = '';
   basketWeightInput.value = '';
@@ -186,6 +195,11 @@ resetBtn.addEventListener('click', () => {
 
 truckInfoInput.addEventListener('input', () => {
   truckInfo = truckInfoInput.value;
+  save();
+});
+
+recordDateInput.addEventListener('input', () => {
+  recordDate = recordDateInput.value;
   save();
 });
 
@@ -206,7 +220,7 @@ let storageOk = true;
 function save(){
   if (!storageOk) return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ truckInfo, tareWeight, deductPercent, basketMode, baskets, bulkWeight, bulkBasketCount, completedTrucks }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ truckInfo, recordDate, tareWeight, deductPercent, basketMode, baskets, bulkWeight, bulkBasketCount, completedTrucks }));
   } catch (e) {
     storageOk = false; // storage unavailable here; app continues to work in-memory silently
   }
@@ -218,6 +232,7 @@ function load(){
     if (raw) {
       const parsed = JSON.parse(raw);
       truckInfo = parsed.truckInfo || '';
+      recordDate = parsed.recordDate || '';
       tareWeight = parsed.tareWeight || 0;
       deductPercent = parsed.deductPercent || 0;
       basketMode = parsed.basketMode === 'bulk' ? 'bulk' : 'perbasket';
@@ -235,7 +250,9 @@ function load(){
   } catch (e) {
     // no existing data yet, or storage unavailable — start fresh in-memory
   }
+  if (!recordDate) recordDate = todayISO();
   truckInfoInput.value = truckInfo;
+  recordDateInput.value = recordDate;
   tareInput.value = tareWeight ? Number(tareWeight).toFixed(2) : '';
   deductInput.value = deductPercent ? Number(deductPercent).toFixed(1) : '';
   bulkWeightInput.value = bulkWeight ? Number(bulkWeight).toFixed(2) : '';
@@ -245,6 +262,167 @@ function load(){
 }
 
 load();
+
+function buildSummaryHtml(){
+  const items = [];
+
+  const currentBasketCount = basketMode === 'bulk' ? bulkBasketCount : baskets.length;
+  const currentGross = basketMode === 'bulk' ? bulkWeight : baskets.reduce((s, b) => s + b.weight, 0);
+  if (currentBasketCount > 0) {
+    const currentFinal = applyDeduct(currentGross - tareWeight * currentBasketCount);
+    items.push({
+      label: (truckInfo && truckInfo.trim() ? truckInfo : '(ไม่ระบุข้อมูลรถ)') + ' (คันปัจจุบัน)',
+      basketCount: currentBasketCount,
+      finalTotal: currentFinal,
+    });
+  }
+  completedTrucks.forEach((t) => {
+    items.push({
+      label: t.truckInfo && t.truckInfo.trim() ? t.truckInfo : '(ไม่ระบุข้อมูลรถ)',
+      basketCount: t.basketCount,
+      finalTotal: applyDeduct(t.grossTotal - tareWeight * t.basketCount),
+    });
+  });
+
+  const itemsHtml = items.length === 0
+    ? '<div class="empty-note">ยังไม่มีข้อมูลรถ</div>'
+    : items.map((it) => `
+      <div class="truck-row">
+        <div>
+          <div class="truck-label">${it.label}</div>
+          <div class="truck-meta">${it.basketCount} ตะกร้า</div>
+        </div>
+        <div class="truck-weight">${fmt(it.finalTotal)} กก.</div>
+      </div>
+    `).join('');
+
+  const grandTotal = items.reduce((s, it) => s + it.finalTotal, 0);
+
+  const now = new Date();
+  const dateStr = recordDate
+    ? new Date(recordDate + 'T00:00:00').toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })
+    : now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+  return `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สรุปรายการชั่งกุ้งเป็น</title>
+<style>
+  :root{
+    --bg: #0a1830;
+    --panel: #11233f;
+    --line: #27466b;
+    --ink: #eef2f9;
+    --ink-dim: #9db2cc;
+    --teal-accent: #4da3ff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: var(--bg);
+    font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+    color: var(--ink);
+    padding: 18px 16px 28px;
+  }
+  .wrap{ max-width: 520px; margin: 0 auto; }
+  .eyebrow{
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--teal-accent);
+    text-transform: uppercase;
+  }
+  h1{ font-size: 21px; margin: 4px 0 3px; }
+  .meta{ font-size: 13px; color: var(--ink-dim); margin-bottom: 14px; }
+  .section-label{
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    font-weight: 600;
+    margin: 14px 0 6px;
+  }
+  .truck-row{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    gap: 10px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+  }
+  .truck-label{ font-size: 14.5px; color: var(--ink); font-weight: 600; }
+  .truck-meta{ font-size: 12px; color: var(--ink-dim); font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+  .truck-weight{
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--teal-accent);
+    white-space: nowrap;
+  }
+  .empty-note{ text-align:center; color: var(--ink-dim); font-size: 13.5px; padding: 16px 10px; }
+  .grand-card{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 14px;
+  }
+  .grand-label{ font-size: 13px; color: var(--ink-dim); margin-bottom: 4px; }
+  .grand-value{ font-size: 28px; font-weight: 800; color: var(--teal-accent); }
+  .back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap: 6px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 14px;
+  }
+  .back-btn:active{ background: var(--line); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <button type="button" class="back-btn" onclick="window.close()">← ย้อนกลับ</button>
+    <div class="eyebrow">Shrimp Scale · แพกุ้ง</div>
+    <h1>สรุปรายการชั่งกุ้งเป็น</h1>
+    <div class="meta">${dateStr} · ${timeStr} น.</div>
+
+    <div class="section-label">รายการรถแต่ละคัน</div>
+    ${itemsHtml}
+
+    <div class="grand-card">
+      <div class="grand-label">น้ำหนักรวมทั้งหมด</div>
+      <div class="grand-value">${fmt(grandTotal)} กก.</div>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
+document.getElementById('summaryBtn').addEventListener('click', () => {
+  const html = buildSummaryHtml();
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('เบราว์เซอร์บล็อกการเปิดหน้าต่างใหม่ กรุณาอนุญาต pop-up แล้วลองอีกครั้ง');
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+});
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
