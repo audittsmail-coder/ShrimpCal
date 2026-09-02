@@ -5,6 +5,7 @@ let percentDeduct = 0; // % deducted from the grand total, applied after tare
 let sampleWeight = 0; // extra sample shrimp weight, added directly to the net final total
 let truckNo = '';
 let recordDate = '';
+let recordNote = '';
 let editingIdx = null;
 let collapsedRows = new Set(); // row indices (0-based) currently collapsed
 let prevBasketCount = 0;
@@ -16,6 +17,7 @@ const percentInput = document.getElementById('percentInput');
 const sampleInput = document.getElementById('sampleInput');
 const truckInput = document.getElementById('truckInput');
 const dateInput = document.getElementById('dateInput');
+const noteInput = document.getElementById('noteInput');
 const addBtn = document.getElementById('addBtn');
 const undoBtn = document.getElementById('undoBtn');
 const clearBtn = document.getElementById('clearBtn');
@@ -182,7 +184,7 @@ let storageOk = true;
 function save(){
   if(!storageOk) return; // storage unavailable in this environment, keep working in-memory
   try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ baskets, tare: tareWeight, percent: percentDeduct, sample: sampleWeight, truckNo, recordDate, records }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ baskets, tare: tareWeight, percent: percentDeduct, sample: sampleWeight, truckNo, recordDate, recordNote, records }));
   }catch(e){
     storageOk = false; // auto-save unavailable here; app continues to work in-memory silently
     const note = document.getElementById('storageNote');
@@ -204,6 +206,7 @@ function load(){
         sampleWeight = parsed.sample || 0;
         truckNo = parsed.truckNo || '';
         recordDate = parsed.recordDate || '';
+        recordNote = parsed.recordNote || '';
         records = Array.isArray(parsed.records) ? parsed.records : [];
       }
     }
@@ -220,6 +223,7 @@ function load(){
     recordDate = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
   }
   dateInput.value = recordDate;
+  noteInput.value = recordNote;
   render();
 }
 
@@ -259,12 +263,14 @@ document.getElementById('modalConfirm').addEventListener('click', () => {
   percentDeduct = 0;
   sampleWeight = 0;
   truckNo = '';
+  recordNote = '';
   editingIdx = null;
 
   tareInput.value = '0.00';
   percentInput.value = '0.00';
   sampleInput.value = '0.00';
   truckInput.value = '';
+  noteInput.value = '';
 
   recordDate = todayISO();
   dateInput.value = recordDate;
@@ -283,6 +289,7 @@ function resetActiveSession(){
   percentDeduct = 0;
   sampleWeight = 0;
   truckNo = '';
+  recordNote = '';
   editingIdx = null;
   collapsedRows = new Set();
   prevBasketCount = 0;
@@ -291,6 +298,7 @@ function resetActiveSession(){
   percentInput.value = '0.00';
   sampleInput.value = '0.00';
   truckInput.value = '';
+  noteInput.value = '';
 
   recordDate = todayISO();
   dateInput.value = recordDate;
@@ -301,7 +309,7 @@ function archiveCurrentSession(){
   const totals = computeTotals(baskets, tareWeight, percentDeduct, sampleWeight);
   records.unshift({
     id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
-    truckNo, recordDate,
+    truckNo, recordDate, recordNote,
     baskets, tare: tareWeight, percent: percentDeduct, sample: sampleWeight,
     basketCount: baskets.length,
     grossTotal: totals.grossTotal, netTotal: totals.netTotal, finalTotal: totals.finalTotal,
@@ -361,6 +369,7 @@ function loadRecord(id){
   sampleWeight = rec.sample || 0;
   truckNo = rec.truckNo || '';
   recordDate = rec.recordDate || todayISO();
+  recordNote = rec.recordNote || '';
   editingIdx = null;
   collapsedRows = new Set();
   prevBasketCount = 0;
@@ -370,6 +379,7 @@ function loadRecord(id){
   sampleInput.value = Number(sampleWeight).toFixed(2);
   truckInput.value = truckNo;
   dateInput.value = recordDate;
+  noteInput.value = recordNote;
 
   render();
   save();
@@ -471,6 +481,10 @@ truckInput.addEventListener('input', () => {
 });
 dateInput.addEventListener('input', () => {
   recordDate = dateInput.value;
+  save();
+});
+noteInput.addEventListener('input', () => {
+  recordNote = noteInput.value;
   save();
 });
 

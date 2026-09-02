@@ -2,6 +2,7 @@ const baseIds = ['w_basket','w_tare','n_basket','deductPercent','price','priceFo
 const inputs = Object.fromEntries(baseIds.map(id => [id, document.getElementById(id)]));
 
 const recordDateInput = document.getElementById('recordDate');
+const recordNoteInput = document.getElementById('recordNote');
 function todayISO(){
   const now = new Date();
   return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
@@ -182,6 +183,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   nimGroup.reset();
   setFoyMode('weigh');
   recordDateInput.value = todayISO();
+  recordNoteInput.value = '';
   calculate();
 });
 
@@ -190,6 +192,10 @@ calculate();
 function txt(id){
   const el = document.getElementById(id);
   return el ? el.textContent.trim() : '';
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 }
 
 function buildSummaryHtml(){
@@ -229,6 +235,8 @@ function buildSummaryHtml(){
     ? new Date(recordDateValue + 'T00:00:00').toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })
     : now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
   const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  const noteValue = recordNoteInput.value.trim();
+  const noteHtml = noteValue ? `<div class="note-box">${escapeHtml(noteValue)}</div>` : '';
 
   return `<!DOCTYPE html>
 <html lang="th">
@@ -345,6 +353,17 @@ function buildSummaryHtml(){
     margin-bottom: 14px;
   }
   .back-btn:active{ background: var(--panel-2); }
+  .note-box{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: var(--ink);
+    margin-bottom: 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
 </style>
 </head>
 <body>
@@ -353,6 +372,7 @@ function buildSummaryHtml(){
     <div class="eyebrow">Shrimp Scale · แพกุ้ง</div>
     <h1>สรุปรายการชั่งกุ้ง</h1>
     <div class="meta">${dateStr} · ${timeStr} น.</div>
+    ${noteHtml}
 
     <div class="section-label">น้ำหนักตะกร้า / เศษ / หัก</div>
     <div class="stat-grid">${statsHtml}</div>
