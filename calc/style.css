@@ -80,7 +80,7 @@ label{
   margin-bottom: 5px;
 }
 .unit{ color: var(--ink-dim); font-size: 13.5px; }
-input[type=number], input[type=date]{
+input[type=number], input[type=date], input[type=text]{
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -95,6 +95,7 @@ input[type=number], input[type=date]{
   transition: border-color .15s ease;
   -moz-appearance: textfield;
 }
+input[type=text]{ font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif; font-size: 16px; }
 input[type=date]{
   color-scheme: dark;
   font-size: 16px;
@@ -102,7 +103,7 @@ input[type=date]{
 }
 input[type=date]::-webkit-date-and-time-value{ min-width: 0; text-align: left; }
 input[type=date]::-webkit-calendar-picker-indicator{ margin-left: 4px; padding: 4px; }
-input[type=number]:focus, input[type=date]:focus{ border-color: var(--teal-accent); }
+input[type=number]:focus, input[type=date]:focus, input[type=text]:focus{ border-color: var(--teal-accent); }
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button{
   -webkit-appearance: none; margin:0;
