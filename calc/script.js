@@ -168,7 +168,7 @@ function calculate(){
   }
   document.getElementById('out_waste').textContent = fmt(wasteWeight) + ' กก.';
   document.getElementById('out_deduct').textContent = deductPercent + '% (' + fmt(deductAmount) + ' กก.)';
-  document.getElementById('out_net').innerHTML = fmt(net) + '<span style="font-size:16px; color:var(--ink-dim)"> กก.</span>';
+  document.getElementById('out_net').innerHTML = fmt(net) + '<span style="font-size:16px; color:var(--shrimp)"> กก.</span>';
   document.getElementById('out_price_rate').textContent = fmt(price) + ' บาท/กก.';
   document.getElementById('out_price').textContent = fmt(total);
 
