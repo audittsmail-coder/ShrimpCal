@@ -264,13 +264,6 @@ function buildSummaryHtml(){
     padding: 18px 16px 28px;
   }
   .wrap{ max-width: 520px; margin: 0 auto; }
-  .eyebrow{
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 11px;
-    letter-spacing: 0.18em;
-    color: var(--teal-accent);
-    text-transform: uppercase;
-  }
   h1{ font-size: 21px; margin: 4px 0 3px; }
   .meta{ font-size: 13px; color: var(--ink-dim); margin-bottom: 14px; }
 
@@ -369,7 +362,6 @@ function buildSummaryHtml(){
 <body>
   <div class="wrap">
     <button type="button" class="back-btn" onclick="window.close()">← ย้อนกลับ</button>
-    <div class="eyebrow">Shrimp Scale · แพกุ้ง</div>
     <h1>สรุปรายการชั่งกุ้ง</h1>
     <div class="meta">${dateStr} · ${timeStr} น.</div>
     ${noteHtml}
