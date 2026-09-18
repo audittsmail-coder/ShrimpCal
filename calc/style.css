@@ -211,6 +211,7 @@ input[type=number]::-webkit-inner-spin-button{
 
 #out_net_label, #out_foy_net_label, #out_nim_net_label, #out_custom_label{ color: var(--ink); }
 #out_total_weight_label, #out_grand_total_label{ font-size: 18px; }
+#out_price_total{ color: var(--shrimp); }
 #out_price_rate, #out_price{ color: var(--shrimp); }
 #out_foy_split, #out_foy_net, #out_foy_rate, #out_foy_price{ color: var(--foy-accent); }
 #out_nim_net, #out_nim_rate, #out_nim_price{ color: var(--nim-accent); }
