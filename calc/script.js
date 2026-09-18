@@ -1,4 +1,4 @@
-const baseIds = ['w_basket','w_tare','n_basket','deductPercent','price','priceFoy','priceNim','foyPercent','priceCustom'];
+const baseIds = ['w_basket','w_tare','n_basket','wasteWeight','deductPercent','price','priceFoy','priceNim','foyPercent','priceCustom'];
 const inputs = Object.fromEntries(baseIds.map(id => [id, document.getElementById(id)]));
 
 const recordDateInput = document.getElementById('recordDate');
@@ -118,6 +118,7 @@ function calculate(){
   const wBasket = num(inputs.w_basket);
   const wTare   = num(inputs.w_tare);
   const nBasket = num(inputs.n_basket);
+  const wasteWeight = num(inputs.wasteWeight);
   const deductPercent = num(inputs.deductPercent);
   const price   = num(inputs.price);
   const priceFoy= num(inputs.priceFoy);
@@ -133,7 +134,7 @@ function calculate(){
   const basketNet = (wBasket - wTare) * nBasket;
   const grossNet = basketNet + restNet + sampleNet;
   const foyNet = foyMode === 'percent' ? grossNet * (foyPercent / 100) : foyGroup.sumNet(wTare);
-  const normalBase = foyMode === 'percent' ? grossNet - foyNet : grossNet;
+  const normalBase = (foyMode === 'percent' ? grossNet - foyNet : grossNet) - wasteWeight;
   const deductAmount = normalBase * (deductPercent / 100);
   const net = normalBase - deductAmount;
   const total = price * net;
@@ -165,6 +166,7 @@ function calculate(){
   } else {
     foySplitRow.style.display = 'none';
   }
+  document.getElementById('out_waste').textContent = fmt(wasteWeight) + ' กก.';
   document.getElementById('out_deduct').textContent = deductPercent + '% (' + fmt(deductAmount) + ' กก.)';
   document.getElementById('out_net').innerHTML = fmt(net) + '<span style="font-size:16px; color:var(--ink-dim)"> กก.</span>';
   document.getElementById('out_price_rate').textContent = fmt(price) + ' บาท/กก.';
@@ -223,6 +225,7 @@ function buildSummaryHtml(){
     ['ดิบก่อนหัก', 'out_gross'],
   ];
   if (foyMode === 'percent') statRows.push(['หักน้ำหนักกุ้งฝอย', 'out_foy_split']);
+  statRows.push(['หักน้ำหนักขยะ', 'out_waste']);
   statRows.push(['หักเปอร์เซ็นต์', 'out_deduct']);
 
   const statsHtml = statRows.map(([label, id]) =>
