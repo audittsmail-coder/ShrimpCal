@@ -59,7 +59,7 @@ h1{
   margin-bottom: 16px;
 }
 .panel-title{
-  font-size: 13px;
+  font-size: 16px;
   letter-spacing: 0.06em;
   color: var(--ink);
   text-transform: uppercase;
@@ -104,7 +104,7 @@ h1{
   border-bottom: 1px dashed var(--line);
   color: var(--ink);
   font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   padding: 0 0 10px;
   margin-bottom: 12px;
