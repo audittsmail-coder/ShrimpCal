@@ -40,13 +40,6 @@ body{
 }
 
 header{ margin-bottom: 18px; }
-.eyebrow{
-  font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  color: var(--teal-accent);
-  text-transform: uppercase;
-}
 h1{
   font-size: 25px;
   margin: 4px 0 2px;
