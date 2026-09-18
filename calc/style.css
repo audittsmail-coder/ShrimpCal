@@ -68,15 +68,18 @@ h1{
 }
 .panel-foy{
   background: linear-gradient(rgba(240,149,74,0.09), rgba(240,149,74,0.09)), var(--panel);
-  border-color: rgba(240,149,74,0.35);
+  border-width: 2px;
+  border-color: rgba(240,149,74,0.75);
 }
 .panel-nim{
   background: linear-gradient(rgba(168,117,230,0.09), rgba(168,117,230,0.09)), var(--panel);
-  border-color: rgba(168,117,230,0.35);
+  border-width: 2px;
+  border-color: rgba(168,117,230,0.75);
 }
 .panel-custom{
   background: linear-gradient(rgba(77,189,143,0.09), rgba(77,189,143,0.09)), var(--panel);
-  border-color: rgba(77,189,143,0.35);
+  border-width: 2px;
+  border-color: rgba(77,189,143,0.75);
 }
 #priceFoy{
   background: linear-gradient(rgba(240,149,74,0.09), rgba(240,149,74,0.09)), var(--bg);
