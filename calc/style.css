@@ -8,7 +8,7 @@
   --shrimp: #e6733a;
   --shrimp-dim: #c65f2c;
   --teal-accent: #4da3ff;
-  --foy-accent: #f0954a;
+  --foy-accent: #7fc8f5;
   --nim-accent: #a875e6;
   --custom-accent: #4dbd8f;
 }
@@ -56,9 +56,9 @@ h1{
   font-weight: 600;
 }
 .panel-foy{
-  background: linear-gradient(rgba(240,149,74,0.09), rgba(240,149,74,0.09)), var(--panel);
+  background: linear-gradient(rgba(127,200,245,0.09), rgba(127,200,245,0.09)), var(--panel);
   border-width: 2px;
-  border-color: rgba(240,149,74,0.75);
+  border-color: rgba(127,200,245,0.75);
 }
 .panel-nim{
   background: linear-gradient(rgba(168,117,230,0.09), rgba(168,117,230,0.09)), var(--panel);
@@ -71,7 +71,7 @@ h1{
   border-color: rgba(77,189,143,0.75);
 }
 #priceFoy{
-  background: linear-gradient(rgba(240,149,74,0.09), rgba(240,149,74,0.09)), var(--bg);
+  background: linear-gradient(rgba(127,200,245,0.09), rgba(127,200,245,0.09)), var(--bg);
   border-color: var(--foy-accent);
 }
 #priceNim{

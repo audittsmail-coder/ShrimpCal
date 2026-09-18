@@ -275,7 +275,7 @@ function buildSummaryHtml(){
     --ink-dim: #9db2cc;
     --shrimp: #e6733a;
     --teal-accent: #4da3ff;
-    --foy-accent: #f0954a;
+    --foy-accent: #7fc8f5;
     --nim-accent: #a875e6;
     --custom-accent: #4dbd8f;
   }
