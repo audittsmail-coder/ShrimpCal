@@ -1,8 +1,9 @@
-const baseIds = ['w_basket','w_tare','n_basket','deductPercent','price','priceFoy','priceNim','foyPercent'];
+const baseIds = ['w_basket','w_tare','n_basket','deductPercent','price','priceFoy','priceNim','foyPercent','priceCustom'];
 const inputs = Object.fromEntries(baseIds.map(id => [id, document.getElementById(id)]));
 
 const recordDateInput = document.getElementById('recordDate');
 const recordNoteInput = document.getElementById('recordNote');
+const customNameInput = document.getElementById('customName');
 function todayISO(){
   const now = new Date();
   return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
@@ -109,6 +110,9 @@ const sampleGroup = createRowGroup('sampleRows', 'addSample', 'ตัวอย�
 const restGroup = createRowGroup('restRows', 'addRow', 'เศษที่ชั่ง');
 const foyGroup = createRowGroup('shrimpFoyRows', 'addShrimpFoy', 'น้ำหนักกุ้งฝอย');
 const nimGroup = createRowGroup('shrimpNimRows', 'addShrimpNim', 'น้ำหนักกุ้งนิ่ม');
+const customGroup = createRowGroup('shrimpCustomRows', 'addShrimpCustom', 'น้ำหนักกุ้ง');
+
+customNameInput.addEventListener('input', calculate);
 
 function calculate(){
   const wBasket = num(inputs.w_basket);
@@ -119,10 +123,12 @@ function calculate(){
   const priceFoy= num(inputs.priceFoy);
   const priceNim= num(inputs.priceNim);
   const foyPercent = num(inputs.foyPercent);
+  const priceCustom = num(inputs.priceCustom);
 
   const restNet = restGroup.sumNet(wTare);
   const sampleNet = sampleGroup.sumRaw();
   const nimNet  = nimGroup.sumNet(wTare);
+  const customNet = customGroup.sumNet(wTare);
 
   const basketNet = (wBasket - wTare) * nBasket;
   const grossNet = basketNet + restNet + sampleNet;
@@ -133,8 +139,9 @@ function calculate(){
   const total = price * net;
   const foyTotal = priceFoy * foyNet;
   const nimTotal = priceNim * nimNet;
-  const grandTotal = total + foyTotal + nimTotal;
-  const totalWeight = net + foyNet + nimNet;
+  const customTotal = priceCustom * customNet;
+  const grandTotal = total + foyTotal + nimTotal + customTotal;
+  const totalWeight = net + foyNet + nimNet + customNet;
 
   document.getElementById('restGross').textContent = fmt(restGroup.sumRaw()) + ' กก.';
   document.getElementById('restSubtotal').textContent = fmt(restNet) + ' กก.';
@@ -144,6 +151,8 @@ function calculate(){
   document.getElementById('shrimpFoySubtotal').textContent = fmt(foyNet) + ' กก.';
   document.getElementById('shrimpNimGross').textContent = fmt(nimGroup.sumRaw()) + ' กก.';
   document.getElementById('shrimpNimSubtotal').textContent = fmt(nimNet) + ' กก.';
+  document.getElementById('shrimpCustomGross').textContent = fmt(customGroup.sumRaw()) + ' กก.';
+  document.getElementById('shrimpCustomSubtotal').textContent = fmt(customNet) + ' กก.';
 
   document.getElementById('out_basket_net').textContent = fmt(basketNet) + ' กก.';
   document.getElementById('out_rest').textContent = fmt(restNet) + ' กก.';
@@ -169,6 +178,12 @@ function calculate(){
   document.getElementById('out_nim_rate').textContent = fmt(priceNim) + ' บาท/กก.';
   document.getElementById('out_nim_price').textContent = fmt(nimTotal) + ' บาท';
 
+  const customNameValue = customNameInput.value.trim();
+  document.getElementById('out_custom_label').textContent = customNameValue ? `น้ำหนักสุทธิ${customNameValue}` : 'น้ำหนักสุทธิ (ระบุชื่อกุ้ง)';
+  document.getElementById('out_custom_net').textContent = fmt(customNet) + ' กก.';
+  document.getElementById('out_custom_rate').textContent = fmt(priceCustom) + ' บาท/กก.';
+  document.getElementById('out_custom_price').textContent = fmt(customTotal) + ' บาท';
+
   document.getElementById('out_total_weight').innerHTML = fmt(totalWeight) + '<span style="font-size:16px; color:var(--ink-dim)"> กก.</span>';
   document.getElementById('out_grand_total').innerHTML = fmt(grandTotal) + '<span style="font-size:16px; color:var(--ink-dim)"> บาท</span>';
 }
@@ -181,6 +196,8 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   sampleGroup.reset();
   foyGroup.reset();
   nimGroup.reset();
+  customGroup.reset();
+  customNameInput.value = '';
   setFoyMode('weigh');
   recordDateInput.value = todayISO();
   recordNoteInput.value = '';
@@ -212,10 +229,12 @@ function buildSummaryHtml(){
     `<div class="stat"><div class="stat-label">${label}</div><div class="stat-value">${txt(id)}</div></div>`
   ).join('');
 
+  const customNameValue = customNameInput.value.trim();
   const categories = [
     { cls: 'cat-normal', title: 'กุ้งปกติ', weight: txt('out_net'), rate: txt('out_price_rate'), total: txt('out_price') + ' บาท' },
     { cls: 'cat-foy',    title: 'กุ้งฝอย',  weight: txt('out_foy_net'), rate: txt('out_foy_rate'), total: txt('out_foy_price') },
     { cls: 'cat-nim',    title: 'กุ้งนิ่ม',  weight: txt('out_nim_net'), rate: txt('out_nim_rate'), total: txt('out_nim_price') },
+    { cls: 'cat-custom', title: escapeHtml(customNameValue || 'กุ้ง (ระบุชื่อ)'), weight: txt('out_custom_net'), rate: txt('out_custom_rate'), total: txt('out_custom_price') },
   ];
   const catsHtml = categories.map(c => `
     <div class="cat-card ${c.cls}">
@@ -254,6 +273,7 @@ function buildSummaryHtml(){
     --shrimp: #e6733a;
     --teal-accent: #4da3ff;
     --nim-accent: #d9a441;
+    --custom-accent: #4dbd8f;
   }
   *{box-sizing:border-box;}
   body{
@@ -293,7 +313,7 @@ function buildSummaryHtml(){
 
   .cat-grid{
     display:grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
   }
   .cat-card{
@@ -307,11 +327,13 @@ function buildSummaryHtml(){
   .cat-normal{ border-top-color: var(--shrimp); }
   .cat-foy{ border-top-color: var(--teal-accent); }
   .cat-nim{ border-top-color: var(--nim-accent); }
+  .cat-custom{ border-top-color: var(--custom-accent); }
   .cat-title{ font-size: 12px; color: var(--ink-dim); margin-bottom: 6px; font-weight: 600; }
   .cat-weight{ font-size: 17px; font-weight: 800; }
   .cat-normal .cat-weight{ color: var(--shrimp); }
   .cat-foy .cat-weight{ color: var(--teal-accent); }
   .cat-nim .cat-weight{ color: var(--nim-accent); }
+  .cat-custom .cat-weight{ color: var(--custom-accent); }
   .cat-rate{ font-size: 10.5px; color: var(--ink-dim); margin-top: 6px; }
   .cat-total{ font-size: 13px; font-weight: 700; margin-top: 2px; }
 

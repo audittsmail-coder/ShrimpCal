@@ -63,6 +63,22 @@ h1{
   margin-bottom: 12px;
   font-weight: 600;
 }
+.panel-title-input{
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--line);
+  color: var(--ink);
+  font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 0 10px;
+  margin-bottom: 12px;
+  outline: none;
+}
+.panel-title-input::placeholder{ color: var(--ink-dim); font-weight: 400; }
+.panel-title-input:focus{ border-bottom-color: var(--teal-accent); }
 
 .field{ margin-bottom: 12px; overflow: hidden; }
 .field:last-child{ margin-bottom: 0; }
