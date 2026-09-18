@@ -272,7 +272,8 @@ function buildSummaryHtml(){
     --ink-dim: #9db2cc;
     --shrimp: #e6733a;
     --teal-accent: #4da3ff;
-    --nim-accent: #d9a441;
+    --foy-accent: #f0954a;
+    --nim-accent: #a875e6;
     --custom-accent: #4dbd8f;
   }
   *{box-sizing:border-box;}
@@ -325,13 +326,13 @@ function buildSummaryHtml(){
     text-align: center;
   }
   .cat-normal{ border-top-color: var(--shrimp); }
-  .cat-foy{ border-top-color: var(--teal-accent); }
+  .cat-foy{ border-top-color: var(--foy-accent); }
   .cat-nim{ border-top-color: var(--nim-accent); }
   .cat-custom{ border-top-color: var(--custom-accent); }
   .cat-title{ font-size: 12px; color: var(--ink-dim); margin-bottom: 6px; font-weight: 600; }
   .cat-weight{ font-size: 17px; font-weight: 800; }
   .cat-normal .cat-weight{ color: var(--shrimp); }
-  .cat-foy .cat-weight{ color: var(--teal-accent); }
+  .cat-foy .cat-weight{ color: var(--foy-accent); }
   .cat-nim .cat-weight{ color: var(--nim-accent); }
   .cat-custom .cat-weight{ color: var(--custom-accent); }
   .cat-rate{ font-size: 10.5px; color: var(--ink-dim); margin-top: 6px; }

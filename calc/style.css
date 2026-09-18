@@ -8,7 +8,8 @@
   --shrimp: #e6733a;
   --shrimp-dim: #c65f2c;
   --teal-accent: #4da3ff;
-  --nim-accent: #d9a441;
+  --foy-accent: #f0954a;
+  --nim-accent: #a875e6;
   --custom-accent: #4dbd8f;
 }
 *{box-sizing:border-box;}
@@ -66,29 +67,30 @@ h1{
   font-weight: 600;
 }
 .panel-foy{
-  background: linear-gradient(rgba(77,163,255,0.09), rgba(77,163,255,0.09)), var(--panel);
-  border-color: rgba(77,163,255,0.35);
+  background: linear-gradient(rgba(240,149,74,0.09), rgba(240,149,74,0.09)), var(--panel);
+  border-color: rgba(240,149,74,0.35);
 }
 .panel-nim{
-  background: linear-gradient(rgba(217,164,65,0.09), rgba(217,164,65,0.09)), var(--panel);
-  border-color: rgba(217,164,65,0.35);
+  background: linear-gradient(rgba(168,117,230,0.09), rgba(168,117,230,0.09)), var(--panel);
+  border-color: rgba(168,117,230,0.35);
 }
 .panel-custom{
   background: linear-gradient(rgba(77,189,143,0.09), rgba(77,189,143,0.09)), var(--panel);
   border-color: rgba(77,189,143,0.35);
 }
 #priceFoy{
-  background: linear-gradient(rgba(77,163,255,0.09), rgba(77,163,255,0.09)), var(--bg);
-  border-color: var(--teal-accent);
+  background: linear-gradient(rgba(240,149,74,0.09), rgba(240,149,74,0.09)), var(--bg);
+  border-color: var(--foy-accent);
 }
 #priceNim{
-  background: linear-gradient(rgba(217,164,65,0.09), rgba(217,164,65,0.09)), var(--bg);
+  background: linear-gradient(rgba(168,117,230,0.09), rgba(168,117,230,0.09)), var(--bg);
   border-color: var(--nim-accent);
 }
 #priceCustom{
   background: linear-gradient(rgba(77,189,143,0.09), rgba(77,189,143,0.09)), var(--bg);
   border-color: var(--custom-accent);
 }
+#priceFoy:focus{ border-color: var(--foy-accent); }
 #priceNim:focus{ border-color: var(--nim-accent); }
 #priceCustom:focus{ border-color: var(--custom-accent); }
 .panel-title-input{
