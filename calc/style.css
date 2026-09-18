@@ -209,6 +209,11 @@ input[type=number]::-webkit-inner-spin-button{
 }
 .price-total .value b{ color: var(--teal-accent); }
 
+#out_price_rate, #out_price{ color: var(--shrimp); }
+#out_foy_split, #out_foy_net, #out_foy_rate, #out_foy_price{ color: var(--foy-accent); }
+#out_nim_net, #out_nim_rate, #out_nim_price{ color: var(--nim-accent); }
+#out_custom_net, #out_custom_rate, #out_custom_price{ color: var(--custom-accent); }
+
 .rest-row{
   display:grid;
   grid-template-columns: 1fr auto;
