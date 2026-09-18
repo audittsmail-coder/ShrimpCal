@@ -175,7 +175,7 @@ input[type=number]::-webkit-inner-spin-button{
   display:flex;
   justify-content: space-between;
   font-size: 15px;
-  color: var(--ink-dim);
+  color: var(--ink);
   padding: 5px 0;
 }
 .tline span:last-child{ color: var(--ink); }
@@ -189,7 +189,7 @@ input[type=number]::-webkit-inner-spin-button{
   align-items: baseline;
   padding-top: 4px;
 }
-.ttotal .label{ font-size: 15px; color: var(--ink-dim); }
+.ttotal .label{ font-size: 15px; color: var(--ink); }
 .ttotal .value{
   font-size: 30px;
   font-weight: 700;
@@ -201,7 +201,7 @@ input[type=number]::-webkit-inner-spin-button{
   align-items: baseline;
   margin-top: 12px;
 }
-.price-total .label{ font-size: 15px; color: var(--ink-dim); }
+.price-total .label{ font-size: 15px; color: var(--ink); }
 .price-total .value{
   font-size: 23px;
   font-weight: 700;
