@@ -61,7 +61,7 @@ h1{
 .panel-title{
   font-size: 13px;
   letter-spacing: 0.06em;
-  color: var(--ink-dim);
+  color: var(--ink);
   text-transform: uppercase;
   margin-bottom: 12px;
   font-weight: 600;
