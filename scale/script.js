@@ -531,3 +531,26 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('service-worker.js').catch(() => {});
   });
 }
+
+// Tells the parent shell (index.html) which way this tab is being scrolled,
+// so the weather/tab bar there can collapse out of the way on scroll-down
+// and reappear on scroll-up — this page has no visibility into that outer
+// page's layout otherwise, since it lives in its own iframe.
+if (window.parent !== window) {
+  let lastScrollY = window.scrollY;
+  let scrollTicking = false;
+  window.addEventListener('scroll', () => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      const atTop = y <= 4;
+      if (atTop || Math.abs(y - lastScrollY) >= 4) {
+        const dir = y > lastScrollY ? 'down' : 'up';
+        lastScrollY = y;
+        window.parent.postMessage({ type: 'shimcal-scroll', dir, atTop }, '*');
+      }
+      scrollTicking = false;
+    });
+  }, { passive: true });
+}
