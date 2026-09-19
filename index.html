@@ -32,6 +32,15 @@
     flex-direction:column;
     overflow:hidden;
   }
+  .topbar{
+    flex-shrink:0;
+    max-height: 300px;
+    overflow:hidden;
+    transition: max-height .25s ease;
+  }
+  .topbar.collapsed{
+    max-height: 0;
+  }
   .weather-bar{
     display:flex;
     align-items:center;
@@ -40,7 +49,6 @@
     border-bottom: 1px solid var(--line);
     padding: 10px 16px;
     padding-top: calc(10px + env(safe-area-inset-top, 0));
-    flex-shrink:0;
   }
   .weather-bar.hidden{ display:none; }
   .weather-icon{ font-size: 28px; line-height:1; flex-shrink:0; }
@@ -95,7 +103,6 @@
     display:flex;
     background: var(--panel);
     border-bottom: 1px solid var(--line);
-    flex-shrink:0;
   }
   .tabbar button{
     flex:1;
@@ -131,23 +138,25 @@
 </style>
 </head>
 <body>
-  <div class="weather-bar" id="weatherBar">
-    <div class="weather-icon" id="weatherIcon">⛅</div>
-    <div class="weather-info">
-      <div class="weather-location" id="weatherLocation"></div>
-      <div class="weather-temp" id="weatherTemp">--°C</div>
-      <div class="weather-desc" id="weatherDesc">กำลังโหลดสภาพอากาศ…</div>
+  <div class="topbar" id="topbar">
+    <div class="weather-bar" id="weatherBar">
+      <div class="weather-icon" id="weatherIcon">⛅</div>
+      <div class="weather-info">
+        <div class="weather-location" id="weatherLocation"></div>
+        <div class="weather-temp" id="weatherTemp">--°C</div>
+        <div class="weather-desc" id="weatherDesc">กำลังโหลดสภาพอากาศ…</div>
+      </div>
+      <div class="weather-stats">
+        <div class="weather-stat"><span class="ws-label">ความชื้น</span><span class="ws-value" id="weatherHumidity">--%</span></div>
+        <div class="weather-stat"><span class="ws-label">โอกาสฝน</span><span class="ws-value" id="weatherRain">--%</span></div>
+      </div>
     </div>
-    <div class="weather-stats">
-      <div class="weather-stat"><span class="ws-label">ความชื้น</span><span class="ws-value" id="weatherHumidity">--%</span></div>
-      <div class="weather-stat"><span class="ws-label">โอกาสฝน</span><span class="ws-value" id="weatherRain">--%</span></div>
-    </div>
+    <nav class="tabbar" id="tabbar">
+      <button type="button" class="active" data-tab="calc">คำนวณชั่งกุ้ง</button>
+      <button type="button" data-tab="scale">ชั่งกุ้งต้ม</button>
+      <button type="button" data-tab="live">ชั่งกุ้งเป็น</button>
+    </nav>
   </div>
-  <nav class="tabbar" id="tabbar">
-    <button type="button" class="active" data-tab="calc">คำนวณชั่งกุ้ง</button>
-    <button type="button" data-tab="scale">ชั่งกุ้งต้ม</button>
-    <button type="button" data-tab="live">ชั่งกุ้งเป็น</button>
-  </nav>
   <div class="frame-wrap">
     <iframe id="frame-calc" class="active" src="calc/index.html" title="คำนวณชั่งกุ้ง"></iframe>
     <iframe id="frame-scale" src="scale/index.html" title="ชั่งกุ้งต้ม"></iframe>
@@ -155,13 +164,28 @@
   </div>
 
 <script>
+  const topbar = document.getElementById('topbar');
   const buttons = document.querySelectorAll('#tabbar button');
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
       buttons.forEach(b => b.classList.toggle('active', b === btn));
       document.querySelectorAll('.frame-wrap iframe').forEach(f => f.classList.remove('active'));
       document.getElementById('frame-' + btn.dataset.tab).classList.add('active');
+      topbar.classList.remove('collapsed');
     });
+  });
+
+  // Tabs live in separate iframes, so their scroll position isn't visible
+  // to this page directly — each tab's script posts scroll direction here
+  // so the weather/tab bar can collapse out of the way on scroll-down and
+  // reappear on scroll-up, instead of permanently eating screen space.
+  window.addEventListener('message', (e) => {
+    if (!e.data || e.data.type !== 'shimcal-scroll') return;
+    if (e.data.atTop || e.data.dir === 'up') {
+      topbar.classList.remove('collapsed');
+    } else if (e.data.dir === 'down') {
+      topbar.classList.add('collapsed');
+    }
   });
 
   if ('serviceWorker' in navigator) {
