@@ -181,11 +181,7 @@
   // reappear on scroll-up, instead of permanently eating screen space.
   window.addEventListener('message', (e) => {
     if (!e.data || e.data.type !== 'shimcal-scroll') return;
-    if (e.data.atTop || e.data.dir === 'up') {
-      topbar.classList.remove('collapsed');
-    } else if (e.data.dir === 'down') {
-      topbar.classList.add('collapsed');
-    }
+    topbar.classList.toggle('collapsed', !e.data.atTop);
   });
 
   if ('serviceWorker' in navigator) {
