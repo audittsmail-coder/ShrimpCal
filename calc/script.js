@@ -182,6 +182,7 @@ function calculate(){
 
   const customNameValue = customNameInput.value.trim();
   document.getElementById('out_custom_label').textContent = customNameValue ? `น้ำหนักสุทธิ${customNameValue}` : 'น้ำหนักสุทธิ (ระบุชื่อกุ้ง)';
+  document.getElementById('priceCustomLabelText').textContent = customNameValue ? `ราคา${customNameValue}` : 'ราคา (ระบุชื่อกุ้ง)';
   document.getElementById('out_custom_net').textContent = fmt(customNet) + ' กก.';
   document.getElementById('out_custom_rate').textContent = fmt(priceCustom) + ' บาท/กก.';
   document.getElementById('out_custom_price').textContent = fmt(customTotal) + ' บาท';
