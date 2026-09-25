@@ -101,12 +101,15 @@ function render(){
     completedTrucks.forEach((t, idx) => {
       const row = document.createElement('div');
       row.className = 'truck-row';
-      const label = t.truckInfo && t.truckInfo.trim() ? t.truckInfo : '(ไม่ระบุข้อมูลรถ)';
+      const truckNo = idx + 1;
+      const hasInfo = t.truckInfo && t.truckInfo.trim();
+      const label = hasInfo ? t.truckInfo : `คันที่ ${truckNo}`;
+      const meta = hasInfo ? `คันที่ ${truckNo} · ${t.basketCount} ตะกร้า` : `${t.basketCount} ตะกร้า`;
       const finalTotal = applyDeduct(t.grossTotal - tareWeight * t.basketCount);
       row.innerHTML = `
         <div>
           <div class="truck-label">${label}</div>
-          <div class="truck-meta">${t.basketCount} ตะกร้า</div>
+          <div class="truck-meta">${meta}</div>
         </div>
         <div class="truck-weight">${fmt(finalTotal)} กก.</div>
         <button type="button" class="truck-rm" aria-label="ลบรายการ">×</button>
