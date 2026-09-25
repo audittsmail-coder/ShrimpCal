@@ -9,7 +9,7 @@ let basketMode = 'perbasket'; // 'perbasket' or 'bulk'
 let baskets = []; // current truck in progress (perbasket mode): [{no, weight}] — weight is gross
 let bulkWeight = 0; // current truck in progress (bulk mode): total gross weight for the whole load
 let bulkBasketCount = 0; // current truck in progress (bulk mode): basket count, to deduct tare from bulkWeight
-let completedTrucks = []; // [{id, truckInfo, note, basketCount, grossTotal, savedAt}] — net/final weight is recomputed from the current tare weight and deduct %, so changing either updates every truck
+let completedTrucks = []; // [{id, truckInfo, note, basketCount, grossTotal, bulkMode, savedAt}] — net/final weight is recomputed from the current tare weight and deduct %, so changing either updates every truck (bulkMode trucks skip the tare deduction — see truckNetTotal())
 
 const truckInfoInput = document.getElementById('truckInfo');
 const recordDateInput = document.getElementById('recordDate');
@@ -65,6 +65,12 @@ function applyDeduct(net){
   return net - net * (deductPercent / 100);
 }
 
+// Bulk-mode trucks store their basket count as a note only, not a tare
+// deduction (see render()), so their net weight is just the recorded gross.
+function truckNetTotal(t){
+  return t.bulkMode ? t.grossTotal : t.grossTotal - tareWeight * t.basketCount;
+}
+
 function render(){
   document.getElementById('basketNextNo').textContent = basketMode === 'perbasket' ? '(ตะกร้าที่ #' + (baskets.length + 1) + ')' : '';
 
@@ -86,7 +92,9 @@ function render(){
 
   const basketCount = basketMode === 'bulk' ? bulkBasketCount : baskets.length;
   const grossSum = basketMode === 'bulk' ? bulkWeight : baskets.reduce((s, b) => s + b.weight, 0);
-  const netSum = grossSum - tareWeight * basketCount;
+  // Bulk mode's basket count is a note only (how many baskets were weighed),
+  // not a tare deduction — the entered total is already the whole load's weight.
+  const netSum = basketMode === 'bulk' ? grossSum : grossSum - tareWeight * basketCount;
   const deductAmount = netSum * (deductPercent / 100);
   const finalSum = netSum - deductAmount;
   document.getElementById('basketCount').textContent = basketCount + ' ใบ';
@@ -105,7 +113,7 @@ function render(){
       const hasInfo = t.truckInfo && t.truckInfo.trim();
       const label = hasInfo ? t.truckInfo : `คันที่ ${truckNo}`;
       const meta = hasInfo ? `คันที่ ${truckNo} · ${t.basketCount} ตะกร้า` : `${t.basketCount} ตะกร้า`;
-      const finalTotal = applyDeduct(t.grossTotal - tareWeight * t.basketCount);
+      const finalTotal = applyDeduct(truckNetTotal(t));
       row.innerHTML = `
         <button type="button" class="truck-rm" aria-label="ลบรายการ">×</button>
         <div class="truck-label">${label}</div>
@@ -121,9 +129,10 @@ function render(){
     });
   }
 
-  const grand = completedTrucks.reduce((s, t) => s + applyDeduct(t.grossTotal - tareWeight * t.basketCount), 0) + finalSum;
+  const grand = completedTrucks.reduce((s, t) => s + applyDeduct(truckNetTotal(t)), 0) + finalSum;
   document.getElementById('grandTotal').textContent = fmt(grand) + ' กก.';
-  const totalTruckCount = completedTrucks.length + (basketCount > 0 ? 1 : 0);
+  const currentHasData = basketMode === 'bulk' ? grossSum > 0 : basketCount > 0;
+  const totalTruckCount = completedTrucks.length + (currentHasData ? 1 : 0);
   document.getElementById('truckCount').textContent = totalTruckCount > 0 ? `(${totalTruckCount} คัน)` : '';
 }
 
@@ -155,14 +164,15 @@ bulkBasketCountInput.addEventListener('input', () => {
 
 finishTruckBtn.addEventListener('click', () => {
   const basketCount = basketMode === 'bulk' ? bulkBasketCount : baskets.length;
-  if (basketCount === 0) return;
   const grossTotal = basketMode === 'bulk' ? bulkWeight : baskets.reduce((s, b) => s + b.weight, 0);
+  if (basketMode === 'bulk' ? grossTotal === 0 : basketCount === 0) return;
   completedTrucks.push({
     id: 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
     truckInfo,
     note: recordNote,
     basketCount,
     grossTotal,
+    bulkMode: basketMode === 'bulk',
     savedAt: new Date().toISOString()
   });
   baskets = [];
@@ -287,13 +297,14 @@ function buildSummaryHtml(){
 
   const currentBasketCount = basketMode === 'bulk' ? bulkBasketCount : baskets.length;
   const currentGross = basketMode === 'bulk' ? bulkWeight : baskets.reduce((s, b) => s + b.weight, 0);
-  if (currentBasketCount > 0) {
-    const currentFinal = applyDeduct(currentGross - tareWeight * currentBasketCount);
+  const currentHasData = basketMode === 'bulk' ? currentGross > 0 : currentBasketCount > 0;
+  if (currentHasData) {
+    const currentNet = basketMode === 'bulk' ? currentGross : currentGross - tareWeight * currentBasketCount;
     items.push({
       label: (truckInfo && truckInfo.trim() ? truckInfo : '(ไม่ระบุข้อมูลรถ)') + ' (คันปัจจุบัน)',
       note: recordNote,
       basketCount: currentBasketCount,
-      finalTotal: currentFinal,
+      finalTotal: applyDeduct(currentNet),
     });
   }
   completedTrucks.forEach((t) => {
@@ -301,7 +312,7 @@ function buildSummaryHtml(){
       label: t.truckInfo && t.truckInfo.trim() ? t.truckInfo : '(ไม่ระบุข้อมูลรถ)',
       note: t.note,
       basketCount: t.basketCount,
-      finalTotal: applyDeduct(t.grossTotal - tareWeight * t.basketCount),
+      finalTotal: applyDeduct(truckNetTotal(t)),
     });
   });
 
