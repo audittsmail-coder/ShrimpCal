@@ -92,8 +92,6 @@ function render(){
   document.getElementById('basketCount').textContent = basketCount + ' ใบ';
   document.getElementById('truckGross').textContent = fmt(grossSum) + ' กก.';
   document.getElementById('truckNet').textContent = fmt(netSum) + ' กก.';
-  document.getElementById('truckDeductPct').textContent = deductPercent;
-  document.getElementById('truckDeduct').textContent = '-' + fmt(deductAmount) + ' กก.';
   document.getElementById('truckFinal').textContent = fmt(finalSum) + ' กก.';
 
   truckList.innerHTML = '';
