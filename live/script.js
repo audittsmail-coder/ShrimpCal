@@ -124,6 +124,8 @@ function render(){
 
   const grand = completedTrucks.reduce((s, t) => s + applyDeduct(t.grossTotal - tareWeight * t.basketCount), 0) + finalSum;
   document.getElementById('grandTotal').textContent = fmt(grand) + ' กก.';
+  const totalTruckCount = completedTrucks.length + (basketCount > 0 ? 1 : 0);
+  document.getElementById('truckCount').textContent = totalTruckCount > 0 ? `(${totalTruckCount} คัน)` : '';
 }
 
 function addBasket(){
