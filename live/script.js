@@ -107,12 +107,10 @@ function render(){
       const meta = hasInfo ? `คันที่ ${truckNo} · ${t.basketCount} ตะกร้า` : `${t.basketCount} ตะกร้า`;
       const finalTotal = applyDeduct(t.grossTotal - tareWeight * t.basketCount);
       row.innerHTML = `
-        <div>
-          <div class="truck-label">${label}</div>
-          <div class="truck-meta">${meta}</div>
-        </div>
-        <div class="truck-weight">${fmt(finalTotal)} กก.</div>
         <button type="button" class="truck-rm" aria-label="ลบรายการ">×</button>
+        <div class="truck-label">${label}</div>
+        <div class="truck-meta">${meta}</div>
+        <span class="truck-weight">${fmt(finalTotal)} กก.</span>
       `;
       row.querySelector('.truck-rm').addEventListener('click', () => {
         completedTrucks.splice(idx, 1);
