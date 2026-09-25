@@ -97,10 +97,6 @@ function render(){
   const netSum = basketMode === 'bulk' ? grossSum : grossSum - tareWeight * basketCount;
   const deductAmount = netSum * (deductPercent / 100);
   const finalSum = netSum - deductAmount;
-  document.getElementById('basketCount').textContent = basketCount + ' ใบ';
-  document.getElementById('truckGross').textContent = fmt(grossSum) + ' กก.';
-  document.getElementById('truckNet').textContent = fmt(netSum) + ' กก.';
-  document.getElementById('truckFinal').textContent = fmt(finalSum) + ' กก.';
 
   truckList.innerHTML = '';
   if (completedTrucks.length === 0) {
@@ -128,6 +124,15 @@ function render(){
       truckList.appendChild(row);
     });
   }
+
+  // Aggregate before/after-basket/after-percent totals across every truck
+  // (finished + the one currently in progress), shown alongside รวมทุกคัน.
+  const totalBasketCount = completedTrucks.reduce((s, t) => s + t.basketCount, 0) + basketCount;
+  const totalGross = completedTrucks.reduce((s, t) => s + t.grossTotal, 0) + grossSum;
+  const totalNet = completedTrucks.reduce((s, t) => s + truckNetTotal(t), 0) + netSum;
+  document.getElementById('basketCount').textContent = totalBasketCount + ' ใบ';
+  document.getElementById('truckGross').textContent = fmt(totalGross) + ' กก.';
+  document.getElementById('truckNet').textContent = fmt(totalNet) + ' กก.';
 
   const grand = completedTrucks.reduce((s, t) => s + applyDeduct(truckNetTotal(t)), 0) + finalSum;
   document.getElementById('grandTotal').textContent = fmt(grand) + ' กก.';

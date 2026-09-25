@@ -70,10 +70,6 @@
         <input type="number" id="bulkBasketCount" inputmode="numeric" step="1" placeholder="0">
       </div>
     </div>
-    <div class="rest-subtotal"><span>จำนวนตะกร้า</span><span id="basketCount">0 ใบ</span></div>
-    <div class="rest-subtotal"><span>น้ำหนักรวมก่อนหักตะกร้า</span><span id="truckGross">0.00 กก.</span></div>
-    <div class="rest-subtotal"><span>น้ำหนักสุทธิ (หลังหักตะกร้า)</span><span id="truckNet">0.00 กก.</span></div>
-    <div class="rest-subtotal"><span>น้ำหนักสุทธิ (หลังหัก %)</span><span id="truckFinal">0.00 กก.</span></div>
     <button type="button" class="add-row" id="finishTruckBtn">✓ รวมน้ำหนักรถคันนี้ &amp; เริ่มคันใหม่</button>
   </div>
 
@@ -83,7 +79,10 @@
   <div class="panel">
     <div class="panel-title">สรุปแต่ละคัน</div>
     <div id="truckList"></div>
-    <div class="rest-subtotal"><span>รวมทุกคัน <span id="truckCount"></span></span><span id="grandTotal">0.00 กก.</span></div>
+    <div class="rest-subtotal"><span>จำนวนตะกร้ารวม</span><span id="basketCount">0 ใบ</span></div>
+    <div class="rest-subtotal"><span>น้ำหนักรวมก่อนหักตะกร้า</span><span id="truckGross">0.00 กก.</span></div>
+    <div class="rest-subtotal"><span>น้ำหนักสุทธิ (หลังหักตะกร้า)</span><span id="truckNet">0.00 กก.</span></div>
+    <div class="rest-subtotal"><span>รวมทุกคัน <span id="truckCount"></span> — หลังหัก %</span><span id="grandTotal">0.00 กก.</span></div>
   </div>
 
   <button type="button" class="summary-btn" id="summaryBtn">สรุปรายการทั้งหมด</button>
