@@ -307,15 +307,20 @@ function buildSummaryHtml(){
       label: (truckInfo && truckInfo.trim() ? truckInfo : '(ไม่ระบุข้อมูลรถ)') + ' (คันปัจจุบัน)',
       note: recordNote,
       basketCount: currentBasketCount,
+      gross: currentGross,
+      net: currentNet,
       finalTotal: applyDeduct(currentNet),
     });
   }
   completedTrucks.forEach((t) => {
+    const net = truckNetTotal(t);
     items.push({
       label: t.truckInfo && t.truckInfo.trim() ? t.truckInfo : '(ไม่ระบุข้อมูลรถ)',
       note: t.note,
       basketCount: t.basketCount,
-      finalTotal: applyDeduct(truckNetTotal(t)),
+      gross: t.grossTotal,
+      net,
+      finalTotal: applyDeduct(net),
     });
   });
 
@@ -329,6 +334,9 @@ function buildSummaryHtml(){
       </div>
     `).join('')}</div>`;
 
+  const totalBasketCount = items.reduce((s, it) => s + it.basketCount, 0);
+  const totalGross = items.reduce((s, it) => s + it.gross, 0);
+  const totalNet = items.reduce((s, it) => s + it.net, 0);
   const grandTotal = items.reduce((s, it) => s + it.finalTotal, 0);
 
   const now = new Date();
@@ -397,6 +405,16 @@ function buildSummaryHtml(){
     margin-top: 3px;
   }
   .empty-note{ text-align:center; color: var(--ink-dim); font-size: 13.5px; padding: 16px 10px; }
+  .rest-subtotal{
+    display:flex;
+    justify-content: space-between;
+    font-size: 13.5px;
+    color: var(--ink-dim);
+    padding: 8px 0;
+    border-top: 1px dashed var(--line);
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+  .rest-subtotal span:last-child{ color: var(--teal-accent); }
   .grand-card{
     background: var(--panel);
     border: 1px solid var(--line);
@@ -433,8 +451,12 @@ function buildSummaryHtml(){
     <div class="section-label">รายการรถแต่ละคัน</div>
     ${itemsHtml}
 
+    <div class="rest-subtotal"><span>จำนวนตะกร้ารวม</span><span>${totalBasketCount} ใบ</span></div>
+    <div class="rest-subtotal"><span>น้ำหนักรวมก่อนหักตะกร้า</span><span>${fmt(totalGross)} กก.</span></div>
+    <div class="rest-subtotal"><span>น้ำหนักสุทธิ (หลังหักตะกร้า)</span><span>${fmt(totalNet)} กก.</span></div>
+
     <div class="grand-card">
-      <div class="grand-label">น้ำหนักรวมทั้งหมด</div>
+      <div class="grand-label">น้ำหนักรวมทั้งหมด (${items.length} คัน) — หลังหัก %</div>
       <div class="grand-value">${fmt(grandTotal)} กก.</div>
     </div>
   </div>
