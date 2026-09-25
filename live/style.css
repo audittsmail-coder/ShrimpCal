@@ -173,6 +173,7 @@ input[type=number]::-webkit-inner-spin-button{
   font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 }
 .rest-subtotal span:last-child{ color: var(--teal-accent); }
+#truckCount{ color: var(--ink-dim); }
 
 .add-row{
   display:flex;
