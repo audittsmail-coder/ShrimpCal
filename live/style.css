@@ -198,30 +198,30 @@ input[type=number]::-webkit-inner-spin-button{
   display:grid;
   grid-template-columns: 1fr auto auto;
   align-items:center;
-  gap: 10px;
+  gap: 8px;
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 9px 12px;
-  margin-bottom: 8px;
+  border-radius: 7px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
 }
-.truck-label{ font-size: 14.5px; color: var(--ink); font-weight: 600; }
-.truck-meta{ font-size: 12px; color: var(--ink-dim); font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+.truck-label{ font-size: 13px; color: var(--ink); font-weight: 600; }
+.truck-meta{ font-size: 10.5px; color: var(--ink-dim); font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
 .truck-weight{
   font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--teal-accent);
   white-space: nowrap;
 }
 .truck-rm{
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   background: var(--bg);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 6px;
   color: var(--ink-dim);
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
 }
