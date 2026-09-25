@@ -318,15 +318,13 @@ function buildSummaryHtml(){
 
   const itemsHtml = items.length === 0
     ? '<div class="empty-note">ยังไม่มีข้อมูลรถ</div>'
-    : items.map((it) => `
+    : `<div class="truck-list">${items.map((it) => `
       <div class="truck-row">
-        <div>
-          <div class="truck-label">${escapeHtml(it.label)}</div>
-          <div class="truck-meta">${it.basketCount} ตะกร้า${it.note && it.note.trim() ? ' · ' + escapeHtml(it.note.trim()) : ''}</div>
-        </div>
+        <div class="truck-label">${escapeHtml(it.label)}</div>
+        <div class="truck-meta">${it.basketCount} ตะกร้า${it.note && it.note.trim() ? ' · ' + escapeHtml(it.note.trim()) : ''}</div>
         <div class="truck-weight">${fmt(it.finalTotal)} กก.</div>
       </div>
-    `).join('');
+    `).join('')}</div>`;
 
   const grandTotal = items.reduce((s, it) => s + it.finalTotal, 0);
 
@@ -370,25 +368,30 @@ function buildSummaryHtml(){
     font-weight: 600;
     margin: 14px 0 6px;
   }
-  .truck-row{
+  .truck-list{
     display:flex;
-    justify-content: space-between;
-    align-items:center;
-    gap: 10px;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
     margin-bottom: 8px;
   }
-  .truck-label{ font-size: 14.5px; color: var(--ink); font-weight: 600; }
-  .truck-meta{ font-size: 12px; color: var(--ink-dim); font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+  .truck-row{
+    flex: 0 0 auto;
+    min-width: 100px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 7px 9px;
+  }
+  .truck-label{ font-size: 12px; color: var(--ink); font-weight: 600; }
+  .truck-meta{ font-size: 10px; color: var(--ink-dim); font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
   .truck-weight{
+    display:block;
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--teal-accent);
     white-space: nowrap;
+    margin-top: 3px;
   }
   .empty-note{ text-align:center; color: var(--ink-dim); font-size: 13.5px; padding: 16px 10px; }
   .grand-card{
