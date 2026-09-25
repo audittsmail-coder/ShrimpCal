@@ -9,7 +9,7 @@ let basketMode = 'perbasket'; // 'perbasket' or 'bulk'
 let baskets = []; // current truck in progress (perbasket mode): [{no, weight}] — weight is gross
 let bulkWeight = 0; // current truck in progress (bulk mode): total gross weight for the whole load
 let bulkBasketCount = 0; // current truck in progress (bulk mode): basket count, to deduct tare from bulkWeight
-let completedTrucks = []; // [{id, truckInfo, note, basketCount, grossTotal, bulkMode, savedAt}] — net/final weight is recomputed from the current tare weight and deduct %, so changing either updates every truck (bulkMode trucks skip the tare deduction — see truckNetTotal())
+let completedTrucks = []; // [{id, truckInfo, note, basketCount, grossTotal, savedAt}] — net/final weight is recomputed from the current tare weight and deduct %, so changing either updates every truck
 
 const truckInfoInput = document.getElementById('truckInfo');
 const recordDateInput = document.getElementById('recordDate');
@@ -65,10 +65,11 @@ function applyDeduct(net){
   return net - net * (deductPercent / 100);
 }
 
-// Bulk-mode trucks store their basket count as a note only, not a tare
-// deduction (see render()), so their net weight is just the recorded gross.
+// If a basket count was never entered (0), this deducts nothing, which is
+// exactly right for a truck weighed without one — so no mode-specific case
+// is needed here.
 function truckNetTotal(t){
-  return t.bulkMode ? t.grossTotal : t.grossTotal - tareWeight * t.basketCount;
+  return t.grossTotal - tareWeight * t.basketCount;
 }
 
 function render(){
@@ -92,9 +93,7 @@ function render(){
 
   const basketCount = basketMode === 'bulk' ? bulkBasketCount : baskets.length;
   const grossSum = basketMode === 'bulk' ? bulkWeight : baskets.reduce((s, b) => s + b.weight, 0);
-  // Bulk mode's basket count is a note only (how many baskets were weighed),
-  // not a tare deduction — the entered total is already the whole load's weight.
-  const netSum = basketMode === 'bulk' ? grossSum : grossSum - tareWeight * basketCount;
+  const netSum = grossSum - tareWeight * basketCount;
   const deductAmount = netSum * (deductPercent / 100);
   const finalSum = netSum - deductAmount;
 
@@ -177,7 +176,6 @@ finishTruckBtn.addEventListener('click', () => {
     note: recordNote,
     basketCount,
     grossTotal,
-    bulkMode: basketMode === 'bulk',
     savedAt: new Date().toISOString()
   });
   baskets = [];
@@ -304,7 +302,7 @@ function buildSummaryHtml(){
   const currentGross = basketMode === 'bulk' ? bulkWeight : baskets.reduce((s, b) => s + b.weight, 0);
   const currentHasData = basketMode === 'bulk' ? currentGross > 0 : currentBasketCount > 0;
   if (currentHasData) {
-    const currentNet = basketMode === 'bulk' ? currentGross : currentGross - tareWeight * currentBasketCount;
+    const currentNet = currentGross - tareWeight * currentBasketCount;
     items.push({
       label: (truckInfo && truckInfo.trim() ? truckInfo : '(ไม่ระบุข้อมูลรถ)') + ' (คันปัจจุบัน)',
       note: recordNote,
