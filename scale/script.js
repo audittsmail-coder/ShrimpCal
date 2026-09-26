@@ -123,6 +123,7 @@ function render(){
             <input class="kg-edit cents-input" data-idx="${idx}" type="text" inputmode="numeric" pattern="[0-9]*" value="${Number(b.weight).toFixed(2)}">
             <div class="edit-actions">
               <button type="button" class="edit-confirm" data-idx="${idx}">✓</button>
+              <button type="button" class="edit-delete" data-idx="${idx}">🗑</button>
               <button type="button" class="edit-cancel" data-idx="${idx}">✕</button>
             </div>`;
           grid.appendChild(el);
@@ -441,6 +442,14 @@ function commitEdit(idx, rawValue){
   render();
 }
 
+function deleteBasket(idx){
+  baskets.splice(idx, 1);
+  baskets.forEach((b, i) => { b.no = i + 1; }); // keep numbering gap-free and in sync with row grouping
+  editingIdx = null;
+  save();
+  render();
+}
+
 basketsSection.addEventListener('input', (e) => {
   if(!e.target.classList.contains('kg-edit')) return;
   e.target.value = formatCentsValue(e.target.value);
@@ -448,11 +457,14 @@ basketsSection.addEventListener('input', (e) => {
 
 basketsSection.addEventListener('click', (e) => {
   const confirmBtn = e.target.closest('.edit-confirm');
+  const deleteBtn = e.target.closest('.edit-delete');
   const cancelBtn = e.target.closest('.edit-cancel');
   if(confirmBtn){
     const idx = parseInt(confirmBtn.dataset.idx, 10);
     const inp = basketsSection.querySelector(`.kg-edit[data-idx="${idx}"]`);
     commitEdit(idx, inp ? inp.value : '');
+  }else if(deleteBtn){
+    deleteBasket(parseInt(deleteBtn.dataset.idx, 10));
   }else if(cancelBtn){
     editingIdx = null;
     render();

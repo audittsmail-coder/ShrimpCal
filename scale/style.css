@@ -353,6 +353,7 @@ header .count{
   cursor:pointer;
 }
 .basket .edit-confirm{background:var(--aqua); color:#071a33;}
+.basket .edit-delete{background:var(--led-dim); color:var(--text);}
 .basket .edit-cancel{background:var(--panel-2); color:var(--muted); border:1px solid var(--line) !important;}
 .basket.last{
   border-color:var(--aqua-dim);
