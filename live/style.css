@@ -90,6 +90,42 @@ input[type=number]::-webkit-inner-spin-button{
   -webkit-appearance: none; margin:0;
 }
 
+.field-row{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin-bottom: 12px;
+}
+.field-row:last-child{ margin-bottom: 0; }
+.field-row label{
+  display: block;
+  margin-bottom: 0;
+  font-size: 14px;
+  color: var(--ink-dim);
+  flex: 1;
+  min-width: 0;
+}
+.field-row input{
+  width: 90px;
+  flex: 0 0 auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--ink);
+  font-family: 'Space Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 15px;
+  text-align: right;
+  padding: 8px 10px;
+  outline: none;
+}
+.field-row input:focus{ border-color: var(--teal-accent); }
+.field-row .unit{ font-size: 12.5px; white-space: nowrap; }
+
 .mode-toggle{
   display:flex;
   gap: 8px;

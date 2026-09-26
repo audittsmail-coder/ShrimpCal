@@ -37,13 +37,15 @@
       <label>หมายเหตุ</label>
       <input type="text" id="recordNote" placeholder="เช่น รายละเอียดเพิ่มเติม">
     </div>
-    <div class="field">
-      <label>น้ำหนักตะกร้า <span class="unit">(กก. — หักออกจากทุกตะกร้าที่ชั่ง)</span></label>
+    <div class="field-row">
+      <label for="tareWeight">น้ำหนักตะกร้า (หักออกจากทุกตะกร้าที่ชั่ง)</label>
       <input type="number" id="tareWeight" inputmode="decimal" step="0.01" placeholder="0.00">
+      <span class="unit">กก.</span>
     </div>
-    <div class="field">
-      <label>หักเปอร์เซ็นต์ <span class="unit">(% — หักจากน้ำหนักสุทธิหลังหักตะกร้า)</span></label>
+    <div class="field-row">
+      <label for="deductPercent">หักเปอร์เซ็นต์ (หักจากน้ำหนักสุทธิหลังหักตะกร้า)</label>
       <input type="number" id="deductPercent" inputmode="decimal" step="0.1" placeholder="0.0">
+      <span class="unit">%</span>
     </div>
   </div>
 
