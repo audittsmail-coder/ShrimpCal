@@ -265,6 +265,7 @@ document.getElementById('modalConfirm').addEventListener('click', () => {
   sampleWeight = 0;
   truckNo = '';
   recordNote = '';
+  records = [];
   editingIdx = null;
 
   tareInput.value = '0.00';
