@@ -103,10 +103,14 @@ function render(){
     const subtotal = document.createElement('div');
     subtotal.className = 'row-subtotal' + (isCollapsed ? ' collapsed' : '');
     const rangeLabel = `แถวที่ ${r+1} (#${r*10+1}–#${r*10+rowBaskets.length})`;
-    subtotal.innerHTML = `<span class="lbl-group"><span class="chevron">▾</span><span class="lbl">${rangeLabel}</span></span><span class="val">${fmt(rowGross)} กก.</span>`;
+    subtotal.innerHTML = `<span class="lbl-group"><span class="chevron">▾</span><span class="lbl">${rangeLabel}</span></span><span class="row-right"><span class="val">${fmt(rowGross)} กก.</span><button type="button" class="row-delete" data-row="${r}">🗑</button></span>`;
     subtotal.addEventListener('click', () => {
       if(collapsedRows.has(r)) collapsedRows.delete(r); else collapsedRows.add(r);
       render();
+    });
+    subtotal.querySelector('.row-delete').addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteRow(r);
     });
     rowBlock.appendChild(subtotal);
 
@@ -446,6 +450,14 @@ function commitEdit(idx, rawValue){
 function deleteBasket(idx){
   baskets.splice(idx, 1);
   baskets.forEach((b, i) => { b.no = i + 1; }); // keep numbering gap-free and in sync with row grouping
+  editingIdx = null;
+  save();
+  render();
+}
+
+function deleteRow(r){
+  baskets.splice(r*10, 10);
+  baskets.forEach((b, i) => { b.no = i + 1; });
   editingIdx = null;
   save();
   render();
