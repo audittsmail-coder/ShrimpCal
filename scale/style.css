@@ -384,6 +384,16 @@ header .count{
 .row-subtotal .row-totals{text-align:right; line-height:1.5;}
 .row-subtotal .row-gross{display:block; font-size:11px; color:var(--muted-2);}
 .row-subtotal .val{font-size:15px; font-weight:700; color:var(--aqua);}
+.row-subtotal .row-right{display:flex; align-items:center; gap:10px;}
+.row-subtotal .row-delete{
+  background:var(--led-dim);
+  color:var(--text);
+  border:none;
+  border-radius:6px;
+  padding:4px 8px;
+  font-size:13px;
+  cursor:pointer;
+}
 .row-block{margin-bottom:8px;}
 .row-block .row-grid{margin-bottom:6px;}
 
