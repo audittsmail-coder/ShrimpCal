@@ -110,7 +110,7 @@ function render(){
     });
     subtotal.querySelector('.row-delete').addEventListener('click', (e) => {
       e.stopPropagation();
-      deleteRow(r);
+      armThenConfirm(e.currentTarget, '⚠️', () => deleteRow(r));
     });
     rowBlock.appendChild(subtotal);
 
@@ -463,6 +463,25 @@ function deleteRow(r){
   render();
 }
 
+// Tap-to-arm, tap-again-to-confirm (within 3s) — guards against an
+// accidental single tap on a delete button, matching the history delete
+// buttons elsewhere in this tab.
+function armThenConfirm(btn, confirmLabel, onConfirm){
+  if(btn.dataset.confirming === '1'){
+    onConfirm();
+  }else{
+    btn.dataset.confirming = '1';
+    const original = btn.textContent;
+    btn.textContent = confirmLabel;
+    setTimeout(() => {
+      if(btn.dataset.confirming === '1'){
+        btn.dataset.confirming = '0';
+        btn.textContent = original;
+      }
+    }, 3000);
+  }
+}
+
 basketsSection.addEventListener('input', (e) => {
   if(!e.target.classList.contains('kg-edit')) return;
   e.target.value = formatCentsValue(e.target.value);
@@ -477,7 +496,7 @@ basketsSection.addEventListener('click', (e) => {
     const inp = basketsSection.querySelector(`.kg-edit[data-idx="${idx}"]`);
     commitEdit(idx, inp ? inp.value : '');
   }else if(deleteBtn){
-    deleteBasket(parseInt(deleteBtn.dataset.idx, 10));
+    armThenConfirm(deleteBtn, '⚠️', () => deleteBasket(parseInt(deleteBtn.dataset.idx, 10)));
   }else if(cancelBtn){
     editingIdx = null;
     render();
