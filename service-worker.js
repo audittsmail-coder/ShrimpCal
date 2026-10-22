@@ -13,7 +13,8 @@ const ASSETS = [
   './scale/script.js',
   './live/index.html',
   './live/style.css',
-  './live/script.js'
+  './live/script.js',
+  './count/index.html'
 ];
 
 self.addEventListener('install', (event) => {
