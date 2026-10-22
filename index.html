@@ -101,24 +101,28 @@
   }
   .tabbar{
     display:flex;
+    gap: 8px;
     background: var(--panel);
     border-bottom: 1px solid var(--line);
+    padding: 10px 12px;
   }
   .tabbar button{
     flex:1;
-    background: transparent;
-    border:none;
-    border-bottom: 3px solid transparent;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
     color: var(--ink-dim);
     font-family: 'Noto Sans Thai', 'Sarabun', system-ui, sans-serif;
-    font-size: 14.5px;
+    font-size: 14px;
     font-weight: 700;
-    padding: 14px 8px 11px;
+    padding: 10px 8px;
     cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
   }
   .tabbar button.active{
-    color: var(--teal-accent);
-    border-bottom-color: var(--teal-accent);
+    background: var(--teal-accent);
+    border-color: var(--teal-accent);
+    color: var(--bg);
   }
   .frame-wrap{
     flex:1;
