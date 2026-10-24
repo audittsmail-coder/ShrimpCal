@@ -98,6 +98,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--shrimp);outline
 .stepper{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--key)}
 .stepper button{flex:0 0 44px;width:44px;border:0;background:none;color:var(--pond);font-size:1.4rem;cursor:pointer}
 .stepper input{flex:1 1 0;min-width:0;width:100%;border:0;background:none;color:var(--ink);text-align:center;font-family:"Mitr",sans-serif;font-size:1.3rem;padding:10px 0}
+.plain-input{width:100%;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--key);color:var(--ink);text-align:center;font-family:"Mitr",sans-serif;font-size:1.3rem;padding:10px 0}
+.plain-input::placeholder{color:var(--muted);font-size:1rem}
 .mode{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:14px}
 .mode button{flex:1;border:0;background:var(--key);color:var(--ink);padding:10px;font:inherit;cursor:pointer}
 .mode button[aria-pressed="true"]{background:var(--pond);color:var(--pond-ink);font-weight:600}
@@ -112,6 +114,10 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--shrimp);outline
 .formula div{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
 .formula div span:last-child{font-family:"Mitr",sans-serif;font-variant-numeric:tabular-nums;text-align:right}
 .formula .sep{margin-top:6px;padding-top:9px;border-top:1px dashed color-mix(in srgb,var(--pond-ink) 30%,transparent)}
+.order-compare{margin-top:14px;border-top:1px solid color-mix(in srgb,var(--pond-ink) 30%,transparent);padding-top:10px}
+.order-compare div{display:flex;justify-content:space-between;gap:10px;padding:3px 0}
+.order-compare div span:last-child{font-family:"Mitr",sans-serif;font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+.order-compare .diff.under{color:var(--shrimp)}
 .credit{text-align:right;margin-top:4px;color:var(--muted);font-size:.8rem}
 @media (max-width:330px){.fields{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}.pad button:active{transform:none}}
@@ -170,6 +176,10 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--shrimp);outline
         <label for="trucks">จำนวนรถ <span class="unit">(คัน)</span></label>
         <div class="stepper"><button data-step="trucks" data-d="-1" aria-label="ลดจำนวนรถ">−</button><input id="trucks" type="number" inputmode="numeric" min="0" step="1" value="1"><button data-step="trucks" data-d="1" aria-label="เพิ่มจำนวนรถ">+</button></div>
       </div>
+      <div class="field">
+        <label for="orderQty">ยอดสั่ง <span class="unit">(ตัว)</span></label>
+        <input id="orderQty" class="plain-input" type="number" inputmode="numeric" min="0" step="1" placeholder="เช่น 600000">
+      </div>
     </div>
     <div class="mode" role="group" aria-label="วิธีใช้ค่าที่นับ">
       <button id="mSum" aria-pressed="true">ใช้ผลรวม</button>
@@ -182,6 +192,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--shrimp);outline
     <h2 id="h-res">ลูกกุ้งทั้งหมดโดยประมาณ</h2>
     <div class="total" id="total">0 <span>ตัว</span></div>
     <div class="formula" id="formula"></div>
+    <div class="order-compare" id="orderCompare" hidden></div>
   </section>
 
   <div class="credit">Crafted by · Singha Jewvutthipong</div>
@@ -190,7 +201,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--shrimp);outline
 <script>
 (function(){
   var KEY = 'shrimp-counter-v1';
-  var state = { scoops: [], scoop: 1, cup: 1, tanks: 1, trucks: 1, mode: 'sum' };
+  var state = { scoops: [], scoop: 1, cup: 1, tanks: 1, trucks: 1, mode: 'sum', orderQty: 0 };
   var entry = '';
   var nf = new Intl.NumberFormat('th-TH', { maximumFractionDigits: 2 });
 
@@ -243,6 +254,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--shrimp);outline
       : '';
 
     $('scoop').value = state.scoop; $('cup').value = state.cup; $('tanks').value = state.tanks; $('trucks').value = state.trucks;
+    $('orderQty').value = state.orderQty ? state.orderQty : '';
     $('mSum').setAttribute('aria-pressed', state.mode === 'sum');
     $('mAvg').setAttribute('aria-pressed', state.mode === 'avg');
     $('modeNote').textContent = state.mode === 'sum'
@@ -262,6 +274,21 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--shrimp);outline
       '<div class="sep"><span>ต่อถัง (' + nf.format(L) + ' ลิตร)</span><span>' + r(perTank) + ' ตัว</span></div>' +
       '<div><span>ต่อรถ 1 คัน (' + nf.format(T) + ' ถัง)</span><span>' + r(perTruck) + ' ตัว</span></div>' +
       '<div><span>รถทั้งหมด ' + nf.format(R) + ' คัน</span><span>' + r(total) + ' ตัว</span></div>';
+
+    var orderQty = num(state.orderQty);
+    var compareEl = $('orderCompare');
+    if (orderQty > 0) {
+      var diff = Math.round(total) - orderQty;
+      var diffPct = (diff / orderQty) * 100;
+      var sign = diff > 0 ? '+' : (diff < 0 ? '−' : '');
+      compareEl.hidden = false;
+      compareEl.innerHTML =
+        '<div><span>ยอดสั่ง</span><span>' + nf.format(orderQty) + ' ตัว</span></div>' +
+        '<div><span>ต่างจากยอดสั่ง</span><span class="diff' + (diff < 0 ? ' under' : '') + '">' + sign + nf.format(Math.abs(diff)) + ' ตัว (' + sign + nf.format(Math.abs(diffPct)) + '%)</span></div>';
+    } else {
+      compareEl.hidden = true;
+      compareEl.innerHTML = '';
+    }
   }
 
   function tally(n){
@@ -301,7 +328,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--shrimp);outline
     else if (e.key === 'Enter') addScoop();
   });
 
-  ['scoop','cup','tanks','trucks'].forEach(function(id){
+  ['scoop','cup','tanks','trucks','orderQty'].forEach(function(id){
     $(id).addEventListener('input', function(){ state[id] = num(this.value); save(); render(); });
   });
   document.querySelectorAll('[data-step]').forEach(function(b){
