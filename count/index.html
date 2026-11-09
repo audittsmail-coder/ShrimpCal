@@ -186,6 +186,9 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--shrimp);outline
       <button id="mAvg" aria-pressed="false">ใช้ค่าเฉลี่ย</button>
     </div>
     <p class="mode-note" id="modeNote"></p>
+    <div class="row-actions">
+      <button class="ghost danger" id="resetSettings">ล้างตัวคูณ</button>
+    </div>
   </section>
 
   <section class="result" aria-labelledby="h-res">
@@ -355,6 +358,26 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--shrimp);outline
     resetArmed = false;
     btn.textContent = 'เริ่มนับใหม่';
     state.scoops = []; entry = ''; save(); render();
+  };
+
+  var settingsDefault = { scoop: 1, cup: 1, tanks: 1, trucks: 1, orderQty: 0 };
+  var settingsChanged = function(){
+    return ['scoop','cup','tanks','trucks','orderQty'].some(function(id){ return num(state[id]) !== settingsDefault[id]; });
+  };
+  var settingsArmed = false, settingsTimer = null;
+  $('resetSettings').onclick = function(){
+    var btn = $('resetSettings');
+    if (settingsChanged() && !settingsArmed) {
+      settingsArmed = true;
+      btn.textContent = 'กดอีกครั้งเพื่อล้าง';
+      settingsTimer = setTimeout(function(){ settingsArmed = false; btn.textContent = 'ล้างตัวคูณ'; }, 3000);
+      return;
+    }
+    clearTimeout(settingsTimer);
+    settingsArmed = false;
+    btn.textContent = 'ล้างตัวคูณ';
+    Object.assign(state, settingsDefault);
+    save(); render();
   };
 
   render();
